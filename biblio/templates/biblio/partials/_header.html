@@ -1,0 +1,31 @@
+<header class="bg-white border-b">
+    <div class="container px-4 py-3 mx-auto">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="text-2xl text-primary fas fa-book-open"></i>
+                <h1 class="text-2xl font-bold text-gray-800">Bibliothèque MEF</h1>
+            </div>
+
+            <div class="items-center hidden space-x-4 md:flex">
+                {% if user.is_authenticated %}
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">{{ user.username }}</span>
+                    <a href="{% url 'logout' %}"
+                        class="px-3 py-2 text-sm bg-primary rounded-md text-white hover:bg-primary-dark transition-colors duration-200">
+                        Déconnexion
+                    </a>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}"
+                    class="px-3 py-2 text-sm bg-primary rounded-md text-white hover:bg-primary-dark transition-colors duration-200">
+                    Connexion
+                </a>
+                {% endif %}
+            </div>
+
+            <button class="text-gray-600 md:hidden">
+                <i class="text-xl fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</header>
