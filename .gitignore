@@ -6,8 +6,7 @@ __pycache__/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media/
-uploads/
+
 
 # Environments
 .env
@@ -28,7 +27,6 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-downloads/
 eggs/
 .eggs/
 lib/
@@ -111,6 +109,3 @@ dmypy.json
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# Static files (if collected)
-staticfiles/
