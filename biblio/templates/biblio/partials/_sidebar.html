@@ -8,42 +8,42 @@
             <ul class="space-y-1">
                 <li>
                     <a href="{% url 'index' %}"
-                        class="flex items-center p-3 rounded-lg text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'index' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'index' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
                         <i class="w-5 mr-3 fas fa-book"></i>
                         <span class="text-sm font-medium">Bibliothèque</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'add_book' %}"
-                        class="flex items-center p-3 rounded-lg text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_book' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_book' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
                         <i class="w-5 mr-3 fas fa-plus-circle"></i>
                         <span class="text-sm">Ajouter un livre</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'add_author' %}"
-                        class="flex items-center p-3 rounded-lg text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_author' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_author' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
                         <i class="w-5 mr-3 fas fa-user-plus"></i>
                         <span class="text-sm">Gérer les auteurs</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'add_category' %}"
-                        class="flex items-center p-3 rounded-lg text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_category' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_category' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
                         <i class="w-5 mr-3 fas fa-tags"></i>
                         <span class="text-sm">Gérer les catégories</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'add_publisher' %}"
-                        class="flex items-center p-3 rounded-lg text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_publisher' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        class="flex items-center p-3 text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_publisher' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
                         <i class="w-5 mr-3 fas fa-building"></i>
                         <span class="text-sm">Gérer les éditeurs</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'book_list' %}"
-                        class="flex items-center p-3 rounded-lg text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'book_list' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'book_list' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
                         <i class="w-5 mr-3 fas fa-list"></i>
                         <span class="text-sm">Liste des livres</span>
                     </a>
@@ -52,14 +52,14 @@
         </div>
 
         <!-- Statistiques rapides -->
-        <div class="mb-8">
+        <div class="mt-16">
             <h2 class="mb-4 text-sm font-semibold tracking-wide uppercase text-white opacity-90">Aperçu Rapide</h2>
 
             <div class="grid grid-cols-1 gap-3">
                 <!-- Livres -->
-                <div class="flex items-center gap-3 p-3 border-b border-white border-opacity-20">
+                <div class="flex items-center gap-3">
                     <div class="flex-1">
-                        <div class="text-lg font-bold text-white">{{ stats.total }}</div>
+                        <div class="text-sm font-bold text-white">{{ stats.total }}</div>
                         <div class="text-xs text-white opacity-80">Livres total</div>
                     </div>
                     <div class="text-right">
@@ -69,25 +69,25 @@
                 </div>
 
                 <!-- Auteurs -->
-                <div class="flex items-center gap-3 p-3 border-b border-white border-opacity-20">
+                <div class="flex items-center gap-3">
                     <div>
-                        <div class="text-lg font-bold text-white">{{ total_authors }}</div>
+                        <div class="text-sm font-bold text-white">{{ total_authors }}</div>
                         <div class="text-xs text-white opacity-80">Auteurs</div>
                     </div>
                 </div>
 
                 <!-- Catégories -->
-                <div class="flex items-center gap-3 p-3 border-b border-white border-opacity-20">
+                <div class="flex items-center gap-3">
                     <div>
-                        <div class="text-lg font-bold text-white">{{ total_categories }}</div>
+                        <div class="text-sm font-bold text-white">{{ total_categories }}</div>
                         <div class="text-xs text-white opacity-80">Catégories</div>
                     </div>
                 </div>
 
                 <!-- Éditeurs -->
-                <div class="flex items-center gap-3 p-3 border-b border-white border-opacity-20">
+                <div class="flex items-center gap-3">
                     <div>
-                        <div class="text-lg font-bold text-white">{{ total_publishers }}</div>
+                        <div class="text-sm font-bold text-white">{{ total_publishers }}</div>
                         <div class="text-xs text-white opacity-80">Éditeurs</div>
                     </div>
                 </div>
@@ -96,7 +96,7 @@
     </div>
 
     <!-- Footer en bas -->
-    <div class="pt-4 mt-4">
+    <div class="pt-4 mt-8">
         <p class="text-sm text-center text-white opacity-70">
             © {% now "Y" %} Bibliothèque MEF. Tous droits réservés.
         </p>

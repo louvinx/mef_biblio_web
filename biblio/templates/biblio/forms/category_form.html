@@ -4,14 +4,14 @@
 <div class="flex min-h-screen">
     <!-- Sidebar avec la liste des catégories -->
     <div class="w-1/3 p-6 bg-gray-50 border-r border-gray-200">
-        <h3 class="mb-4 text-lg font-semibold text-gray-800">Liste des Catégories</h3>
+        <h3 class="mb-4 text-lg font-semibold ">Liste des Catégories</h3>
         <div class="max-h-[calc(100vh-200px)] overflow-y-auto">
             <ul class="space-y-2">
                 {% for cat in categories %}
                 <li
                     class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
                     <div class="flex-1">
-                        <span class="text-sm font-medium text-gray-700">{{ cat.category_name }}</span>
+                        <span class="text-sm font-medium ">{{ cat.category_name }}</span>
                         {% if cat.description %}
                         <p class="text-xs text-gray-500 truncate">{{ cat.description }}</p>
                         {% endif %}
@@ -22,6 +22,7 @@
                             class="px-2 py-1 text-xs text-primary transition-colors bg-blue-50 rounded hover:bg-blue-100">
                             Modifier
                         </a>
+                        {% if cat.book_count < 1 %}
                         <form method="post" action="{% url 'delete_category' cat.category_id %}" class="inline">
                             {% csrf_token %}
                             <button type="submit"
@@ -30,6 +31,7 @@
                                 Supprimer
                             </button>
                         </form>
+                        {% endif %}
                     </div>
                 </li>
                 {% empty %}
@@ -48,7 +50,7 @@
     <!-- Formulaire Catégorie -->
     <div class="flex-1 p-6">
         <div class="max-w-2xl p-6 mx-auto bg-white rounded-lg shadow-sm">
-            <h2 class="mb-8 text-2xl font-bold text-center text-gray-800">
+            <h2 class="mb-8 text-2xl font-bold text-center ">
                 {% if category %}Modifier la catégorie{% else %}Ajouter une catégorie{% endif %}
             </h2>
 
@@ -70,7 +72,7 @@
                 <div class="space-y-6">
                     {% for field in form %}
                     <div>
-                        <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                        <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium ">
                             {{ field.label }}
                             {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
                         </label>
@@ -88,11 +90,11 @@
                 </div>
 
                 <div class="flex gap-4 pt-6">
-                    <button type="submit" class="flex-1 px-6 py-3 text-white bg-gray-800 rounded-md hover:bg-gray-700">
+                    <button type="submit" class="flex-1 px-6 py-3 text-white bg-gray-800 rounded hover:bg-gray-700">
                         {% if category %}Modifier{% else %}Ajouter{% endif %} la catégorie
                     </button>
                     <a href="{% url 'index' %}"
-                        class="flex-1 px-6 py-3 text-center text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                        class="flex-1 px-6 py-3 text-center  bg-gray-100 rounded hover:bg-gray-200">
                         Annuler
                     </a>
                 </div>
@@ -108,7 +110,7 @@
         // Appliquer les styles aux champs
         const inputs = form.querySelectorAll('input, textarea');
         inputs.forEach(input => {
-            input.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-md',
+            input.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded',
                 'focus:outline-none', 'focus:ring-2', 'focus:ring-primary/80', 'focus:border-transparent');
         });
 

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-*b30e=c6uf3+#^n$tqvvbd_x+b4m^if^fvdl5*ssnx88$7-e2e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 LOGIN_REDIRECT_URL = '/'
 
@@ -97,6 +97,22 @@ WSGI_APPLICATION = 'mef_biblio_web.wsgi.application'
 # }
 
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mef_biblio',
+        'USER': 'root',
+        'PASSWORD': 'louvinx2203',
+        'HOST': 'localhost',  # or your MySQL server IP
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        }
+    }
+}
+
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
@@ -111,22 +127,6 @@ WSGI_APPLICATION = 'mef_biblio_web.wsgi.application'
 #         }
 #     }
 # }
-
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mef_biblio',
-        'USER': 'root',
-        'PASSWORD': 'mefddne2025!',
-        'HOST': '192.168.0.100',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': 'utf8mb4',
-        }
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -175,4 +175,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = True 
+CORS_ALLOW_ALL_ORIGINS = True

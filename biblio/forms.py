@@ -53,55 +53,55 @@ class BookForm(forms.ModelForm):
         ]
         widgets = {
             'title': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'Titre du livre',
                 'minlength': '2',
                 'maxlength': '200'
             }),
             'isbn': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'ISBN (10 ou 13 chiffres)'
             }),
             'publisher': forms.Select(attrs={'class': 'hidden'}),
             'publication_year': forms.NumberInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'min': '1800',
                 'max': str(date.today().year)
             }),
             'pages': forms.NumberInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'min': '1'
             }),
             'language': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'Langue du livre',
                 'minlength': '2',
                 'maxlength': '50'
             }),
             'summary': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'rows': 4,
                 'placeholder': 'Résumé du livre'
             }),
             'total_copies': forms.NumberInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'min': '1'
             }),
             'available_copies': forms.NumberInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'min': '0'
             }),
             'location': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'Emplacement physique du livre',
                 'minlength': '2',
                 'maxlength': '500'
             }),
             'status': forms.Select(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent'
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent'
             }),
             'file': forms.FileInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'accept': '.pdf,.epub,.mobi'
             }),
         }
@@ -225,7 +225,7 @@ class BookForm(forms.ModelForm):
 class AuthorForm(forms.ModelForm):
     birth_date = forms.DateField(
         widget=forms.DateInput(attrs={
-            'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+            'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
             'type': 'date',
             'max': date.today().isoformat()
         }),
@@ -238,25 +238,25 @@ class AuthorForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'nationality', 'birth_date', 'biography']
         widgets = {
             'first_name': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'Prénom de l\'auteur',
                 'minlength': '2',
                 'maxlength': '100'
             }),
             'last_name': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'Nom de l\'auteur',
                 'minlength': '2',
                 'maxlength': '100'
             }),
             'nationality': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'Nationalité de l\'auteur',
                 'minlength': '2',
                 'maxlength': '50'
             }),
             'biography': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'rows': 4,
                 'placeholder': 'Biographie de l\'auteur'
             }),
@@ -318,13 +318,13 @@ class CategoryForm(forms.ModelForm):
         fields = ['category_name', 'description']
         widgets = {
             'category_name': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'Nom de la catégorie',
                 'minlength': '2',
                 'maxlength': '100'
             }),
             'description': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'rows': 3,
                 'placeholder': 'Description de la catégorie'
             }),
@@ -373,22 +373,22 @@ class PublisherForm(forms.ModelForm):
         fields = ['publisher_name', 'address', 'phone', 'email']
         widgets = {
             'publisher_name': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'Nom de l\'éditeur',
                 'minlength': '2',
                 'maxlength': '150'
             }),
             'address': forms.Textarea(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'rows': 3,
                 'placeholder': 'Adresse complète'
             }),
             'phone': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': '+XX-XXX-XXX-XXXX'
             }),
             'email': forms.EmailInput(attrs={
-                'class': 'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
                 'placeholder': 'email@editeur.com'
             }),
         }

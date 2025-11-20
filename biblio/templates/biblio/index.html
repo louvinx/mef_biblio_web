@@ -4,7 +4,7 @@
 {% block content %}
 <div  class="p-6">
 <!-- En-tête de la bibliothèque -->
-<div class="p-4 mb-6 border border-gray-300 rounded-md">
+<div class="p-4 mb-6 border border-gray-300 rounded">
     <div class="flex flex-col items-start justify-between md:flex-row md:items-center">
         <div>
             <h2 class="text-2xl font-bold text-primary">Bibliothèque</h2>
@@ -12,8 +12,8 @@
         </div>
 
         <div class="flex items-center mt-4 space-x-3 md:mt-0">
-            <div class="flex p-1 bg-gray-100 rounded-md">
-                <button class="p-2  rounded-md shadow-sm text-primary grid-view-btn">
+            <div class="flex p-1 bg-gray-100 rounded">
+                <button class="p-2  rounded shadow-sm text-primary grid-view-btn">
                     <i class="fas fa-th"></i>
                 </button>
                 <button class="p-2 bg-white text-gray-500 hover:text-primary list-view-btn">
@@ -22,12 +22,12 @@
             </div>
 
             <div class="relative">
-                <select id="sort-select" class="py-2 pl-3 pr-8 bg-white border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent">
+                <select id="sort-select" class="py-2 pl-3 pr-8 bg-white border border-gray-300 rounded appearance-none focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent">
                     <option value="created_at">Trier par: Récent</option>
                     <option value="title">Triter par: A-Z</option>
                     <option value="publication_year">Trier par: Année</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 pointer-events-none">
+                <div class="absolute inset-y-0 right-0 flex items-center px-2  pointer-events-none">
                     <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
@@ -45,23 +45,23 @@
                     type="text"
                     id="search-input"
                     placeholder="Rechercher des livres, auteurs, éditeurs..."
-                    class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-accent focus:border-transparent"
+                    class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded focus:ring-2 focus:ring-accent focus:border-transparent"
                 />
             </div>
         </div>
-        <button id="search-btn" class="px-6 py-2 text-white rounded-md bg-primary hover:bg-primary-dark">
+        <button id="search-btn" class="px-6 py-2 text-white rounded bg-primary hover:bg-primary-dark">
             <i class="fas fa-search mr-2"></i>Rechercher
         </button>
     </div>
     
     <div class="flex gap-2 mt-4">
-        <select id="category-filter" class="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-accent">
+        <select id="category-filter" class="px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-accent">
             <option value="">Toutes les catégories</option>
             {% for category in categories %}
             <option value="{{ category.category_id }}">{{ category.category_name }}</option>
             {% endfor %}
         </select>
-        <select id="format-filter" class="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-accent">
+        <select id="format-filter" class="px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-accent">
             <option value="">Tous les formats</option>
             <option value="physical">Physique</option>
             <option value="digital">Numérique</option>
@@ -76,48 +76,23 @@
 
 <!-- Grille des livres populaires -->
 <div class="flex items-center justify-between mb-6">
-    <h3 class="text-lg font-semibold text-gray-700">Livres populaires</h3>
+    <h3 class="text-lg font-semibold ">Livres populaires</h3>
     <a href="{% url 'book_list' %}" class="text-sm text-primary hover:underline">Voir tout</a>
 </div>
 
 <div class="grid grid-cols-2 gap-4 mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
     {% for book in popular_books %}
-    <div class="overflow-hidden transition-all duration-300 border-2 border-transparent rounded-lg shadow-md bg-card hover:shadow-xl hover:border-accent hover:-translate-y-2">
+    <div class="overflow-hidden  transition-all duration-300 border border-gray-200 rounded shadow-md bg-card  hover:shadow-xl hover:border-primary/50 hover:-translate-y-2">
         <!-- En-tête avec badge populaire -->
-        <div class="relative">
-            <div class="flex items-center justify-center h-32 {% if book.file %}bg-gradient-to-br from-green-50 to-teal-100{% else %}bg-gradient-to-br from-blue-50 to-indigo-100{% endif %}">
-                {% if book.file %}
-                <i class="text-4xl fas fa-file-pdf text-green-500"></i>
-                {% else %}
-                <i class="text-4xl fas fa-book text-primary"></i>
-                {% endif %}
-            </div>
-            <div class="absolute top-2 right-2">
-                <span class="px-2 py-1 text-xs font-bold text-yellow-800 bg-yellow-400 rounded-full">
-                    <i class="fas fa-fire mr-1"></i>Populaire
-                </span>
-            </div>
-        </div>
         
-        <div class="p-3">
-            <h4 class="mb-1 text-sm font-bold line-clamp-2 text-gray-800">{{ book.title }}</h4>
+        <div class="p-3 ">
+            <h4 class="mb-1 text-sm font-bold whitespace-normal">{{ book.title }}</h4>
             <p class="mb-2 text-xs text-gray-600">
                 {% with book.authors.all|first as first_author %}
                     {{ first_author.first_name }} {{ first_author.last_name }}
                 {% endwith %}
             </p>
             
-            <!-- Métriques de popularité -->
-            <div class="flex items-center justify-between mb-2 text-xs text-gray-500">
-                <span class="flex items-center">
-                    <i class="mr-1 fas fa-eye"></i>
-                    <span>{{ book.view_count|default:"0" }} vues</span>
-                </span>
-                <span class="flex items-center">
-                    <i class="mr-1 fas fa-heart"></i>
-                    <span>{{ book.like_count|default:"0" }}</span>
-                </span>
-            </div>
             
             <div class="flex items-center justify-between">
                 <!-- Badge de statut -->
@@ -125,9 +100,8 @@
                     <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Disponible</span>
                 {% elif book.status == 'borrowed' %}
                     <span class="px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded-full">Emprunté</span>
-                {% elif book.status == 'reserved' %}
-                    <span class="px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">Réservé</span>
                 {% endif %}
+
                 
                 <!-- Badge de type -->
                 {% if book.file %}
@@ -139,19 +113,22 @@
                         {% endif %}
                     </span>
                 {% else %}
-                    <span class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full">Physique</span>
+                    <span class="px-2 py-1 text-xs font-semibold  bg-gray-100 rounded-full">Physique</span>
                 {% endif %}
+                   <span class="px-2 py-1 text-xs font-bold text-yellow-800 bg-yellow-400 rounded-full">
+                    <i class="fas fa-fire mr-1"></i>Populaire
+                </span>
             </div>
             
             <!-- Actions conditionnelles -->
             {% if book.file %}
             <div class="flex gap-2 mt-3">
                 <a href="{% url 'read_book' book.book_id %}" target="_blank" 
-                   class="flex-1 px-3 py-2 text-xs font-semibold text-center text-white bg-gradient-to-r from-green-500 to-green-600 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200">
+                   class="flex-1 px-3 py-2 text-xs font-semibold text-center text-white bg-green-600 rounded hover:from-green-600 hover:to-green-700 transition-all duration-200">
                    <i class="fas fa-eye mr-1"></i>Lire
                 </a>
                 <a href="{% url 'download_book' book.book_id %}" 
-                   class="flex-1 px-3 py-2 text-xs font-semibold text-center text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200">
+                   class="flex-1 px-3 py-2 text-xs font-semibold text-center text-white bg-blue-600 rounded hover:from-blue-600 hover:to-blue-700 transition-all duration-200">
                    <i class="fas fa-download mr-1"></i>Télé.
                 </a>
             </div>
@@ -168,7 +145,7 @@
 
 <!-- Tous les livres -->
 <div class="flex items-center justify-between mb-6">
-    <h3 class="text-lg font-semibold text-gray-700">Tous les livres</h3>
+    <h3 class="text-lg font-semibold ">Tous les livres</h3>
     <div class="text-sm text-gray-600">
         <span id="total-books">{{ total_books }}</span> livres
         <span id="available-books" class="ml-2 text-green-600">(<span>{{ stats.available }}</span> disponibles)</span>
@@ -200,7 +177,7 @@
 <!-- Aucun résultat -->
 <div id="no-results" class="hidden text-center">
     <i class="text-4xl text-gray-400 fas fa-search"></i>
-    <h3 class="mt-4 text-lg font-semibold text-gray-700">Aucun livre trouvé</h3>
+    <h3 class="mt-4 text-lg font-semibold ">Aucun livre trouvé</h3>
     <p class="text-gray-600">Essayez de modifier vos critères de recherche</p>
 </div>
 
@@ -332,7 +309,7 @@ function createBookCard(book) {
     // Badge de type
     const typeBadge = isDigital ? 
         `<span class="px-2 py-1 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded">${fileType}</span>` :
-        '<span class="px-2 py-1 text-xs text-gray-700 bg-gray-50 border border-gray-200 rounded">Physique</span>';
+        '<span class="px-2 py-1 text-xs  bg-gray-50 border border-gray-200 rounded">Physique</span>';
     
     // Actions conditionnelles
     let actions = '';
@@ -371,7 +348,7 @@ function createBookCard(book) {
             <i class="text-4xl ${iconClass}"></i>
         </div>
         <div class="p-3">
-            <h4 class="mb-1 text-sm font-semibold line-clamp-2 text-gray-800" title="${book.title}">${book.title}</h4>
+            <h4 class="mb-1 text-sm font-semibold line-clamp-2 " title="${book.title}">${book.title}</h4>
             <p class="mb-2 text-xs text-gray-600">${authorName}</p>
             <div class="flex items-center justify-between mb-2">
                 ${statusBadge}
@@ -455,7 +432,7 @@ function createBookListItem(book) {
             <i class="text-2xl ${iconClass}"></i>
         </div>
         <div class="flex-1">
-            <h4 class="font-semibold text-gray-800">${book.title}</h4>
+            <h4 class="font-semibold ">${book.title}</h4>
             <p class="text-sm text-gray-600">${authorsText}</p>
             <div class="flex gap-2 mt-1">
                 ${categoriesHtml}

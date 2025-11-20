@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="max-w-6xl p-6 mx-auto">
-    <h2 class="mb-6 text-2xl font-bold text-center text-gray-800">
+    <h2 class="mb-6 text-2xl font-bold text-center ">
         {% if book %}Modifier le livre{% else %}Ajouter un livre{% endif %}
     </h2>
 
@@ -11,7 +11,7 @@
         {% csrf_token %}
 
         {% if form.errors %}
-        <div class="p-4 text-sm text-red-700 bg-red-100 rounded-md">
+        <div class="p-4 text-sm text-red-700 bg-red-100 rounded">
             <ul class="list-disc list-inside">
                 {% for field, errors in form.errors.items %}
                     {% if field != '__all__' %}
@@ -28,8 +28,8 @@
         {% endif %}
 
         <!-- Toggle pour le type de livre -->
-        <div class="p-4 border border-gray-300 rounded-md">
-            <label class="block mb-3 text-sm font-medium text-gray-700">
+        <div class="p-4 border border-gray-300 rounded">
+            <label class="block mb-3 text-sm font-medium ">
                 Type de livre *
             </label>
             <div class="flex gap-4">
@@ -53,7 +53,7 @@
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <!-- Titre et ISBN -->
             <div class="col-span-2">
-                <label for="{{ form.title.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                <label for="{{ form.title.id_for_label }}" class="block mb-2 text-sm font-medium ">
                     Titre du livre *
                 </label>
                 {{ form.title }}
@@ -63,7 +63,7 @@
             </div>
 
             <div>
-                <label for="{{ form.isbn.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                <label for="{{ form.isbn.id_for_label }}" class="block mb-2 text-sm font-medium ">
                     ISBN
                 </label>
                 {{ form.isbn }}
@@ -75,7 +75,7 @@
             <!-- Année et langue -->
             <div>
                 <label for="{{ form.publication_year.id_for_label }}"
-                    class="block mb-2 text-sm font-medium text-gray-700">
+                    class="block mb-2 text-sm font-medium ">
                     Année de publication
                 </label>
                 {{ form.publication_year }}
@@ -85,7 +85,7 @@
             </div>
 
             <div>
-                <label for="{{ form.language.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                <label for="{{ form.language.id_for_label }}" class="block mb-2 text-sm font-medium ">
                     Langue *
                 </label>
                 {{ form.language }}
@@ -96,7 +96,7 @@
 
             <!-- Pages et exemplaires -->
             <div>
-                <label for="{{ form.pages.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                <label for="{{ form.pages.id_for_label }}" class="block mb-2 text-sm font-medium ">
                     Nombre de pages
                 </label>
                 {{ form.pages }}
@@ -108,7 +108,7 @@
             <!-- Champs conditionnels pour livre physique -->
             <div id="physical-fields">
                 <div>
-                    <label for="{{ form.total_copies.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                    <label for="{{ form.total_copies.id_for_label }}" class="block mb-2 text-sm font-medium ">
                         Exemplaires totaux *
                     </label>
                     {{ form.total_copies }}
@@ -119,7 +119,7 @@
 
                 <div>
                     <label for="{{ form.available_copies.id_for_label }}"
-                        class="block mb-2 text-sm font-medium text-gray-700">
+                        class="block mb-2 text-sm font-medium ">
                         Exemplaires disponibles *
                     </label>
                     {{ form.available_copies }}
@@ -129,7 +129,7 @@
                 </div>
 
                 <div class="col-span-2">
-                    <label for="{{ form.location.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                    <label for="{{ form.location.id_for_label }}" class="block mb-2 text-sm font-medium ">
                         Emplacement physique
                     </label>
                     {{ form.location }}
@@ -141,7 +141,7 @@
 
             <!-- Statut -->
             <div>
-                <label for="{{ form.status.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                <label for="{{ form.status.id_for_label }}" class="block mb-2 text-sm font-medium ">
                     Statut
                 </label>
                 {{ form.status }}
@@ -152,7 +152,7 @@
 
             <!-- Champ fichier pour livre numérique -->
             <div id="digital-fields" class="col-span-2" style="display: none;">
-                <label for="{{ form.file.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                <label for="{{ form.file.id_for_label }}" class="block mb-2 text-sm font-medium ">
                     Fichier (PDF, EPUB, MOBI) *
                 </label>
                 {{ form.file }}
@@ -162,10 +162,10 @@
                 
                 <!-- Affichage du fichier actuel avec options -->
                 {% if book and book.file %}
-                <div class="mt-4 p-4 bg-blue-50 rounded-md">
+                <div class="mt-4 p-4 bg-blue-50 rounded">
                     <h4 class="text-lg font-semibold text-blue-800 mb-2">Fichier actuel</h4>
                     <div class="flex flex-wrap gap-4 items-center">
-                        <span class="text-sm text-gray-700">{{ book.file.name }}</span>
+                        <span class="text-sm ">{{ book.file.name }}</span>
                         <div class="flex gap-2">
                             <a href="{% url 'download_book' book.book_id %}" 
                                class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
@@ -191,13 +191,13 @@
 
             <!-- Auteurs -->
             <div class="col-span-2">
-                <label class="block mb-2 text-sm font-medium text-gray-700">
+                <label class="block mb-2 text-sm font-medium ">
                     Auteurs *
                 </label>
                 <div class="space-y-3">
                     <!-- Liste des auteurs sélectionnés -->
                     <div id="selected-authors"
-                        class="flex flex-wrap gap-2 min-h-10 p-2 border border-gray-300 rounded-md">
+                        class="flex flex-wrap gap-2 min-h-10 p-2 border border-gray-300 rounded">
                         {% if book %}
                             {% for author in book.authors.all %}
                             <span class="inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
@@ -214,7 +214,7 @@
 
                     <!-- Interface de sélection -->
                     <div class="flex gap-2">
-                        <select id="author-select" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80">
+                        <select id="author-select" class="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80">
                             <option value="">Sélectionnez un auteur...</option>
                             {% for author in authors %}
                             <option value="{{ author.pk }}" data-name="{{ author.first_name }} {{ author.last_name }}">
@@ -239,13 +239,13 @@
 
             <!-- Catégories -->
             <div class="col-span-2">
-                <label class="block mb-2 text-sm font-medium text-gray-700">
+                <label class="block mb-2 text-sm font-medium ">
                     Catégories *
                 </label>
                 <div class="space-y-3">
                     <!-- Liste des catégories sélectionnées -->
                     <div id="selected-categories"
-                        class="flex flex-wrap gap-2 min-h-10 p-2 border border-gray-300 rounded-md">
+                        class="flex flex-wrap gap-2 min-h-10 p-2 border border-gray-300 rounded">
                         {% if book %}
                             {% for category in book.categories.all %}
                             <span
@@ -263,7 +263,7 @@
 
                     <!-- Interface de sélection -->
                     <div class="flex gap-2">
-                        <select id="category-select" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80">
+                        <select id="category-select" class="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80">
                             <option value="">Sélectionnez une catégorie...</option>
                             {% for category in categories %}
                             <option value="{{ category.pk }}" data-name="{{ category.category_name }}">
@@ -288,12 +288,12 @@
 
             <!-- Éditeur -->
             <div class="col-span-2">
-                <label class="block mb-2 text-sm font-medium text-gray-700">
+                <label class="block mb-2 text-sm font-medium ">
                     Éditeur
                 </label>
                 <div class="space-y-3">
                     <!-- Éditeur sélectionné -->
-                    <div id="selected-publisher" class="min-h-10 p-2 border border-gray-300 rounded-md">
+                    <div id="selected-publisher" class="min-h-10 p-2 border border-gray-300 rounded">
                         {% if book and book.publisher %}
                         <span
                             class="inline-flex items-center px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full">
@@ -310,7 +310,7 @@
 
                     <!-- Interface de sélection -->
                     <div class="flex gap-2">
-                        <select id="publisher-select" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/80">
+                        <select id="publisher-select" class="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80">
                             <option value="">Sélectionnez un éditeur...</option>
                             {% for publisher in publishers %}
                             <option value="{{ publisher.pk }}" data-name="{{ publisher.publisher_name }}">
@@ -335,7 +335,7 @@
 
             <!-- Résumé -->
             <div class="col-span-2">
-                <label for="{{ form.summary.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">
+                <label for="{{ form.summary.id_for_label }}" class="block mb-2 text-sm font-medium ">
                     Résumé
                 </label>
                 {{ form.summary }}
@@ -346,8 +346,8 @@
         </div>
 
         <!-- Actions conditionnelles selon le type de livre -->
-        <div class="mt-6 p-4 border border-gray-300 rounded-md">
-            <h3 class="mb-3 text-lg font-semibold text-gray-800">Informations du livre</h3>
+        <div class="mt-6 p-4 border border-gray-300 rounded">
+            <h3 class="mb-3 text-lg font-semibold ">Informations du livre</h3>
             {% if book and book.file %}
             <div class="flex gap-2">
                 <a href="{% url 'read_book' book.book_id %}" target="_blank" 
@@ -364,7 +364,7 @@
             </p>
             {% elif book %}
             <div class="text-center">
-                <div class="inline-flex items-center px-3 py-1 text-sm bg-gray-100 text-gray-800 rounded-full">
+                <div class="inline-flex items-center px-3 py-1 text-sm bg-gray-100  rounded-full">
                     <i class="fas fa-book mr-1"></i>
                     Livre physique - {{ book.available_copies }}/{{ book.total_copies }} disponibles
                 </div>
@@ -378,11 +378,11 @@
         </div>
 
         <div class="flex gap-4 pt-6 border-t">
-            <button type="submit" class="flex-1 px-6 py-3 text-white bg-gray-800 rounded-md hover:bg-gray-700">
+            <button type="submit" class="flex-1 px-6 py-3 text-white bg-gray-800 rounded hover:bg-gray-700">
                 {% if book %}Modifier le livre{% else %}Ajouter le livre{% endif %}
             </button>
             <a href="{% url 'book_list' %}"
-                class="flex-1 px-6 py-3 text-center text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                class="flex-1 px-6 py-3 text-center  bg-gray-100 rounded hover:bg-gray-200">
                 Annuler
             </a>
         </div>

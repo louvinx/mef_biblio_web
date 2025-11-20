@@ -1,26 +1,29 @@
 <header class="bg-white border-b">
     <div class="container px-4 py-3 mx-auto">
         <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <i class="text-2xl text-primary fas fa-book-open"></i>
-                <h1 class="text-2xl font-bold text-gray-800">Bibliothèque MEF</h1>
+            <div class=" text-center">
+                <div class="flex justify-center items-center space-x-3 text-primary">
+                    <img src="/media/logo.png" alt="Logo MEF/DDNE" class="h-8 w-auto">
+                    <div class="text-left">
+                        <h1 class="text-lg font-bold">Bibliothèque</h1>
+                        <p class="text-xs">MEF/DDNE</p>
+                    </div>
+                </div>
             </div>
 
+
             <div class="items-center hidden space-x-4 md:flex">
-                {% if user.is_authenticated %}
-                <div class="flex items-center space-x-4">
-                    <span class="text-sm text-gray-700">{{ user.username }}</span>
-                    <a href="{% url 'logout' %}"
-                        class="px-3 py-2 text-sm bg-primary rounded-md text-white hover:bg-primary-dark transition-colors duration-200">
-                        Déconnexion
-                    </a>
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm p-2 text-primary bg-gray-200 rounded ">
+                        <i class="w-5 fas fa-user"></i>{{ user.username }}</span>
+                    <form method="post" action="{% url 'logout' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="px-3 py-2 text-sm bg-red-700 rounded text-white hover:bg-primary-dark transition-colors duration-200 cursor-pointer">
+                            Déconnexion
+                        </button>
+                    </form>
                 </div>
-                {% else %}
-                <a href="{% url 'login' %}"
-                    class="px-3 py-2 text-sm bg-primary rounded-md text-white hover:bg-primary-dark transition-colors duration-200">
-                    Connexion
-                </a>
-                {% endif %}
             </div>
 
             <button class="text-gray-600 md:hidden">

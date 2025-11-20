@@ -108,6 +108,7 @@ def get_global_stats():
 # ============================================
 # VUE INDEX
 # ============================================
+@login_required
 def index(request):
     # Récupérer les paramètres de recherche et filtres
     search_query = request.GET.get('search', '').strip()
