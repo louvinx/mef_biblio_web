@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Bibliothèque MEF/DDNE{% endblock %}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'logo.ico' %}">
+    
+    <!-- Tailwind CSS - Local -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#16476a',
+                        secondary: '#e74c3c',
+                        accent: '#2c3e50',
+                        background: '#ffffff',
+                        card: '#ffffff',
+                    },
+                    borderRadius: {
+                        md: '0.375rem',
+                    },
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+
+    <!-- Fonts and Icons - Local Files -->
+      <link rel="stylesheet" href="{% static 'css/style.js' %}" />
+    <link rel="stylesheet" href="{% static 'css/roboto.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/fontawesome.min.css' %}" />
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="font-sans bg-white min-h-screen flex flex-col">
+    <!-- Main Layout -->
+    <div class="flex flex-1">
+        <!-- Sidebar fixe -->
+        {% include 'biblio/partials/_sidebar.html' %}
+        
+        <!-- Overlay for mobile sidebar -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden transition-opacity duration-300 opacity-0"></div>
+        
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-h-screen md:ml-64 transition-all duration-300">
+            {% include 'biblio/partials/_header.html' %}
+            
+            <!-- Content Container -->
+            <main class="flex-1 overflow-auto">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // CSRF Token for Django AJAX requests
+        const csrftoken = "{{ csrf_token }}";
+
+        // URLs Django
+        const API_URLS = {
+            books: "{% url 'api_books' %}",
+            book_detail: "{% url 'api_get_book' 0 %}".replace('0', ''),
+            categories: "{% url 'api_categories' %}",
+            authors: "{% url 'api_authors' %}",
+            publishers: "{% url 'api_publishers' %}",
+            download: "{% url 'api_download_book' 0 %}".replace('0', '')
+        };
+
+        // Mobile Sidebar Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            function toggleSidebar() {
+                // Check if sidebar is currently hidden (has -translate-x-full)
+                const isHidden = sidebar.classList.contains('-translate-x-full');
+                
+                if (isHidden) {
+                    // Open sidebar
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                    // Small delay to allow display change to take effect before opacity transition
+                    setTimeout(() => {
+                        overlay.classList.remove('opacity-0');
+                    }, 10);
+                } else {
+                    // Close sidebar
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('opacity-0');
+                    // Wait for transition to finish before hiding
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                    }, 300);
+                }
+            }
+
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleSidebar();
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', toggleSidebar);
+            }
+            
+            // Close sidebar when clicking a link on mobile
+            const sidebarLinks = sidebar.querySelectorAll('a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 768) { // md breakpoint
+                        toggleSidebar();
+                    }
+                });
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

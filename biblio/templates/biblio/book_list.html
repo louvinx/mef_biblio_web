@@ -1,0 +1,475 @@
+{% extends 'biblio/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-3 sm:p-4 md:p-6">
+    <!-- En-tête -->
+    <div class="flex flex-col items-start justify-between mb-4 sm:mb-6 lg:flex-row lg:items-center gap-3">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold">Gestion des Livres</h1>
+            <p class="text-sm sm:text-base text-gray-600">Liste complète de tous les livres de la bibliothèque</p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+
+            <!-- Boutons d'export avec compteur -->
+            <div class="flex gap-2">
+                <!-- Menu d'export amélioré -->
+                <div class="relative inline-block flex-1 sm:flex-initial" id="export-menu-container">
+                    <button id="export-toggle-button"
+                        class="flex items-center justify-center w-full px-3 sm:px-4 py-2 text-sm sm:text-base text-white bg-green-600 rounded hover:bg-green-700 transition-all duration-200">
+                        <i class="mr-2 fas fa-file-export"></i>
+                        <span id="export-text">Exporter</span>
+                        <i class="ml-2 fas fa-chevron-down transition-transform duration-200"></i>
+                        {% if page_obj.paginator.count > 0 %}
+                        <span class="export-badge">{{ page_obj.paginator.count }}</span>
+                        {% endif %}
+                    </button>
+
+                    <!-- Menu déroulant amélioré -->
+                    <div id="export-dropdown" class="hidden absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-xl ring-1 ring-black ring-opacity-5">
+                        <div class="py-1">
+                            <!-- Options d'export -->
+                            <a href="{% url 'export_books_excel' %}?{{ request.GET.urlencode }}"
+                                class="export-menu-item flex items-center px-4 py-3 text-sm  hover:bg-gray-50 transition-all export-link">
+                                <div
+                                    class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="icon-excel fas fa-file-excel"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">Excel</p>
+                                    <p class="text-xs text-gray-800">Format .xlsx</p>
+                                </div>
+                                <i class="fas fa-arrow-right text-gray-400 text-xs"></i>
+                            </a>
+
+                    <!--        <a href="{% url 'export_books_pdf' %}?{{ request.GET.urlencode }}"
+                                class="export-menu-item flex items-center px-4 py-3 text-sm  hover:bg-gray-50 transition-all export-link">
+                                <div
+                                    class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="icon-pdf fas fa-file-pdf"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">PDF</p>
+                                    <p class="text-xs text-gray-800">Format .pdf</p>
+                                </div>
+                                <i class="fas fa-arrow-right text-gray-400 text-xs"></i>
+                            </a> -->
+
+                            <a href="{% url 'export_books_word' %}?{{ request.GET.urlencode }}"
+                                class="export-menu-item flex items-center px-4 py-3 text-sm  hover:bg-gray-50 transition-all export-link">
+                                <div
+                                    class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="icon-word fas fa-file-word"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">Word</p>
+                                    <p class="text-xs text-gray-800">Format .docx</p>
+                                </div>
+                                <i class="fas fa-arrow-right text-gray-400 text-xs"></i>
+                            </a>
+
+                            <!-- Footer du menu -->
+                            <div class="px-4 py-2 border-t border-gray-200 bg-gray-50">
+                                <p class="text-xs text-gray-800">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Les filtres actifs seront appliqués
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{% url 'add_book' %}"
+                    class="flex items-center justify-center flex-1 sm:flex-initial px-3 sm:px-4 py-2 text-sm sm:text-base text-white bg-primary rounded hover:bg-primary/90">
+                    <i class="mr-2 fas fa-plus"></i>
+                    <span class="hidden sm:inline">Ajouter un livre</span>
+                    <span class="sm:hidden">Ajouter</span>
+                </a>
+            </div>
+
+            <!-- Notification toast -->
+            <div id="export-toast" class="hidden fixed bottom-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-check-circle text-xl"></i>
+                    <span id="toast-message" class="font-medium"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres et recherche -->
+    <div class="p-3 sm:p-4 mb-4 sm:mb-6 bg-white border border-gray-200 rounded-lg">
+        <form method="get" class="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4">
+            <!-- Recherche -->
+            <div class="md:col-span-3">
+                <label class="block mb-2 text-xs sm:text-sm font-medium">Recherche</label>
+                <input type="text" name="search" value="{{ search }}" placeholder="Titre, auteur, ISBN..."
+                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80">
+            </div>
+
+            <!-- Boutons -->
+            <div class="flex items-end space-x-2">
+                <button type="submit" class="flex-1 px-3 sm:px-4 py-2 text-sm text-white bg-primary rounded hover:bg-primary/90">
+                    <i class="mr-1 sm:mr-2 fas fa-filter"></i><span class="hidden xs:inline">Filtrer</span><span class="xs:hidden">OK</span>
+                </button>
+                <a href="{% url 'book_list' %}"
+                    class="px-3 sm:px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tableau des livres -->
+    <div class="">
+        <div class="p-3 sm:p-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <h2 class="text-base sm:text-lg font-semibold">
+                    Livres (<span class="text-primary">{{ page_obj.paginator.count }}</span> résultat{{ page_obj.paginator.count|pluralize }})
+                </h2>
+                <span class="text-xs sm:text-sm text-gray-800">
+                    Page {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}
+                </span>
+            </div>
+        </div>
+
+        {% if page_obj %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-200 ">
+                <thead class="bg-gray-50 border border-gray-200">
+                    <tr>
+                        <th class="px py-3 text-xs font-medium tracking-wider text-center text-gray-800 uppercase">Livre
+                        </th>
+                        <th class="px py-3 text-xs font-medium tracking-wider text-center text-gray-800 uppercase">
+                            Auteurs</th>
+                        <th class="px py-3 text-xs font-medium tracking-wider text-center text-gray-800 uppercase">
+                            Catégories</th>
+                        <th class="px py-3 text-xs font-medium tracking-wider text-center text-gray-800 uppercase">
+                            Statut</th>
+                        <th class="px py-3 text-xs font-medium tracking-wider text-center text-gray-800 uppercase">
+                            Exemplaires</th>
+                        <th class="px py-3 text-xs font-medium tracking-wider text-center text-gray-800 uppercase">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for book in page_obj %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-left border border-gray-200">
+                            <div class="flex items-center">
+                                <div
+                                    class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="text-primary fas fa-book"></i>
+                                </div>
+                                <div class="ml-4">
+    					<div class="text-sm font-medium text-gray-900 break-words whitespace-normal leading-tight">
+        					{{ book.title }}
+    					</div>
+    					<div class="text-sm text-gray-800 mt-1">
+   						 {% if book.isbn %}{{ book.isbn }}{% else %}Sans ISBN{% endif %}
+   					</div>
+   					{% if book.publication_year %}
+    					<div class="text-xs text-gray-400 mt-1">{{ book.publication_year }}</div>
+    					{% endif %}
+				</div>
+                            </div>
+                        </td>
+                        <td class="px-2 py-4 text-left border border-gray-200">
+                           
+                                	<div class="text-sm text-gray-900">
+    						{% if book.authors.all %}
+        					<ul class="list-disc list-inside space-y-1">
+            						{% for author in book.authors.all %}
+                				<li class="leading-tight">{{ author.name }}</li>
+            						{% endfor %}
+        						</ul>
+    							{% else %}
+       						 <span class="text-gray-400">Aucun auteur</span>
+    					{% endif %}
+				
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-center border border-gray-200">
+                            <div class="flex flex-wrap gap-1 text-center">
+                                {% for category in book.categories.all %}
+                                <span
+                                    class="inline-flex px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                                    {{ category.category_name }}
+                                </span>
+                                {% empty %}
+                                <span class="text-gray-400 text-xs">Aucune catégorie</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center border border-gray-200">
+                            {% if book.status == 'available' %}
+                            <span
+                                class="inline-flex px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
+                                Disponible
+                            </span>
+                            {% elif book.status == 'borrowed' %}
+                            <span
+                                class="inline-flex px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded-full">
+                                Emprunté
+                            </span>
+                            {% elif book.status == 'reserved' %}
+                            <span
+                                class="inline-flex px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">
+                                Réservé
+                            </span>
+                            {% else %}
+                            <span
+                                class="inline-flex px-2 py-1 text-xs font-semibold  bg-gray-100 rounded-full">
+                                Maintenance
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center border border-gray-200">
+                            <div class="text-sm text-gray-900">
+                                <div>Total: {{ book.total_copies }}</div>
+                                <div class="text-green-600">Dispo: {{ book.available_copies }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-1 whitespace-nowrap text-centertext-sm font-medium border border-gray-200">
+                            <div class="flex space-x-2 items-center justify-center text-center">
+                                <a href="{% url 'edit_book' book.book_id %}" class="text-white text-xs bg-blue-500 px-2 py-1 rounded-sm"
+                                    title="Modifier">
+                                    Modifier
+                                </a>
+                                <form method="post" action="{% url 'delete_book' book.book_id %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-white text-xs bg-red-500 px-2 py-1 rounded-sm"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer « {{ book.title }} » ?')"
+                                        title="Supprimer">
+                                        Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-8 text-center">
+            <i class="text-4xl text-gray-300 fas fa-book"></i>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">Aucun livre trouvé</h3>
+            <p class="mt-2 text-gray-800">
+                {% if search or selected_category or selected_status %}
+                Aucun livre ne correspond à vos critères de recherche.
+                {% else %}
+                Aucun livre n'a été ajouté à la bibliothèque pour le moment.
+                {% endif %}
+            </p>
+            <a href="{% url 'add_book' %}"
+                class="inline-flex items-center px-4 py-2 mt-4 text-white bg-primary rounded hover:bg-primary/90">
+                <i class="mr-2 fas fa-plus"></i>
+                Ajouter le premier livre
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Pagination -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+            <div class="text-sm ">
+                Affichage de {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ page_obj.paginator.count }}
+                livres
+            </div>
+            <div class="flex space-x-2">
+                {% if page_obj.has_previous %}
+                <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}"
+                    class="px-3 py-2 text-sm  bg-white border border-gray-300 rounded hover:bg-gray-50">
+                    Première
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}"
+                    class="px-3 py-2 text-sm  bg-white border border-gray-300 rounded hover:bg-gray-50">
+                    Précédent
+                </a>
+                {% endif %}
+
+                <span class="px-3 py-2 text-sm  bg-gray-100 border border-gray-300 rounded">
+                    Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}"
+                    class="px-3 py-2 text-sm  bg-white border border-gray-300 rounded hover:bg-gray-50">
+                    Suivant
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}"
+                    class="px-3 py-2 text-sm  bg-white border border-gray-300 rounded hover:bg-gray-50">
+                    Dernière
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gestion du menu déroulant d'export
+        const exportToggleButton = document.getElementById('export-toggle-button');
+        const exportDropdown = document.getElementById('export-dropdown');
+        const exportText = document.getElementById('export-text');
+        const exportLinks = document.querySelectorAll('.export-link');
+        const exportToast = document.getElementById('export-toast');
+        const toastMessage = document.getElementById('toast-message');
+        const chevronIcon = exportToggleButton.querySelector('.fa-chevron-down');
+
+        // Toggle du menu déroulant
+        exportToggleButton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const isHidden = exportDropdown.classList.contains('hidden');
+            
+            if (isHidden) {
+                exportDropdown.classList.remove('hidden');
+                exportToggleButton.classList.add('export-button-active');
+                chevronIcon.style.transform = 'rotate(180deg)';
+            } else {
+                exportDropdown.classList.add('hidden');
+                exportToggleButton.classList.remove('export-button-active');
+                chevronIcon.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Fermer le menu déroulant en cliquant à l'extérieur
+        document.addEventListener('click', function (e) {
+            if (!exportToggleButton.contains(e.target) && !exportDropdown.contains(e.target)) {
+                exportDropdown.classList.add('hidden');
+                exportToggleButton.classList.remove('export-button-active');
+                chevronIcon.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Gestion des clics sur les liens d'export
+        exportLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                // Fermer le menu déroulant
+                exportDropdown.classList.add('hidden');
+                exportToggleButton.classList.remove('export-button-active');
+                chevronIcon.style.transform = 'rotate(0deg)';
+
+                // Afficher l'indicateur de chargement
+                const originalText = exportText.textContent;
+                exportText.innerHTML = '<span class="export-loading mr-2"></span>Export en cours...';
+
+                // Afficher la notification
+                showToast('Export démarré avec succès !');
+
+                // Réinitialiser le texte après un délai
+                setTimeout(() => {
+                    exportText.textContent = originalText;
+                }, 3000);
+            });
+        });
+
+        // Fonction pour afficher les notifications toast
+        function showToast(message) {
+            toastMessage.textContent = message;
+            exportToast.classList.remove('hidden');
+            exportToast.classList.add('flex');
+
+            // Animation d'entrée
+            setTimeout(() => {
+                exportToast.style.transform = 'translateX(0)';
+                exportToast.style.opacity = '1';
+            }, 10);
+
+            // Masquer après 3 secondes
+            setTimeout(() => {
+                exportToast.style.transform = 'translateX(100%)';
+                exportToast.style.opacity = '0';
+                
+                setTimeout(() => {
+                    exportToast.classList.add('hidden');
+                    exportToast.classList.remove('flex');
+                    exportToast.style.transform = '';
+                    exportToast.style.opacity = '';
+                }, 300);
+            }, 3000);
+        }
+
+        // Prévenir la fermeture du menu déroulant lors du clic à l'intérieur
+        exportDropdown.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+    });
+</script>
+
+<!-- Styles additionnels -->
+<style>
+    .export-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.125rem 0.5rem;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 600;
+        border-radius: 9999px;
+        margin-left: 0.5rem;
+    }
+
+    .export-loading {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid #f3f4f6;
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .export-menu-item {
+        transition: all 0.15s ease-in-out;
+    }
+
+    .export-menu-item:hover {
+        background-color: #f9fafb;
+        transform: translateX(2px);
+    }
+
+    .export-button-active {
+        background-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    .icon-excel {
+        color: #10b981;
+    }
+
+    .icon-pdf {
+        color: #ef4444;
+    }
+
+    .icon-word {
+        color: #3b82f6;
+    }
+
+    #export-toast {
+        transform: translateX(100%);
+        opacity: 0;
+        transition: all 0.3s ease-in-out;
+    }
+
+    @media (max-width: 768px) {
+        #export-toast {
+            left: 1rem;
+            right: 1rem;
+            transform: translateY(100%);
+        }
+    }
+</style>
+
+{% endblock %}

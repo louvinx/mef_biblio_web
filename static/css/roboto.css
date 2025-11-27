@@ -1,0 +1,47 @@
+/* Roboto Font - Local */
+/* 
+  Pour télécharger les polices Roboto:
+  1. Visitez: https://fonts.google.com/specimen/Roboto
+  2. Cliquez sur "Download family"
+  3. Extrayez le ZIP et copiez les fichiers .ttf dans static/fonts/
+  
+  Ou utilisez google-webfonts-helper:
+  https://gwfh.mranftl.com/fonts/roboto?subsets=latin
+*/
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: url('../fonts/Roboto-Light.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/Roboto-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  src: url('../fonts/Roboto-Medium.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url('../fonts/Roboto-Bold.ttf') format('truetype');
+  font-display: swap;
+}
+
+/* Fallback pour les polices système si Roboto n'est pas chargé */
+body {
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}

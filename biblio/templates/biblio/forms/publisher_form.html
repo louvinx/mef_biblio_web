@@ -1,0 +1,156 @@
+{% extends 'biblio/base.html' %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row min-h-screen">
+    <!-- Sidebar avec la liste des éditeurs -->
+    <div class="w-full md:w-1/3 p-6 bg-gray-50 border-r border-gray-200">
+        <h3 class="mb-4 text-lg font-semibold ">Liste des Éditeurs</h3>
+        <div class="max-h-[calc(100vh-200px)] overflow-y-auto">
+            <ul class="space-y-2">
+                {% for pub in publishers %}
+                <li
+                    class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
+                    <div class="flex-1">
+                        <span class="text-sm font-medium ">{{ pub.publisher_name }}</span>
+                        {% if pub.email %}
+                        <p class="text-xs text-gray-800">{{ pub.email }}</p>
+                        {% endif %}
+                        {% if pub.phone %}
+                        <p class="text-xs text-gray-800">{{ pub.phone }}</p>
+                        {% endif %}
+                        <p class="text-xs text-gray-400">{{ pub.book_set.count }} livre(s)</p>
+                    </div>
+                    <div class="flex gap-2 ml-4">
+                        <a href="{% url 'edit_publisher' pub.publisher_id %}"
+                            class="px-2 py-1 text-xs text-primary transition-colors bg-blue-50 rounded hover:bg-blue-100">
+                            Modifier
+                        </a>
+                                {% if pub.book_count < 1 %}
+                        <form method="post" action="{% url 'delete_publisher' pub.publisher_id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="px-2 py-1 text-xs text-red-600 transition-colors bg-red-50 rounded hover:bg-red-100"
+                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet éditeur ?')">
+                                Supprimer
+                            </button>
+                        </form>
+                           {% endif %}
+                    </div>
+                </li>
+                {% empty %}
+                <li class="p-3 text-sm text-center text-gray-800 bg-white border border-gray-200 rounded-lg">
+                    Aucun éditeur trouvé
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <a href="{% url 'add_publisher' %}"
+            class="inline-block w-full px-4 py-2 mt-4 text-sm font-medium text-center text-white transition-colors bg-gray-800 rounded hover:bg-gray-700">
+            + Nouvel Éditeur
+        </a>
+    </div>
+
+    <!-- Formulaire Éditeur -->
+    <div class="flex-1 p-6">
+        <div class="max-w-2xl p-6 mx-auto bg-white rounded-lg shadow-sm">
+            <h2 class="mb-8 text-2xl font-bold text-center ">
+                {% if publisher %}Modifier l'éditeur{% else %}Ajouter un éditeur{% endif %}
+            </h2>
+
+            <form method="post" id="publisher-form" class="space-y-6">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="p-4 text-sm text-red-700 bg-red-50 border border-red-100 rounded">
+                    <ul class="list-disc list-inside">
+                        {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                        {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="grid grid-cols-1 gap-6">
+                    {% for field in form %}
+                    <div class="">
+                        <label for="{{ field.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                            {{ field.label }}
+                            {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="mt-1 text-xs text-gray-800">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="mt-1 text-xs text-red-600">
+                            {{ field.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="flex gap-4 pt-6 text-sm">
+                    <button type="submit" class="flex-1 py-3 text-white bg-gray-800 rounded hover:bg-gray-700">
+                        {% if publisher %}Modifier{% else %}Ajouter{% endif %} l'éditeur
+                    </button>
+                    <a href="{% url 'index' %}"
+                        class="flex-1 py-3 text-center  bg-gray-100 rounded hover:bg-gray-200">
+                        Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('publisher-form');
+
+        // Appliquer les styles aux champs
+        const inputs = form.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded',
+                'focus:outline-none', 'focus:ring-2', 'focus:ring-primary/80', 'focus:border-transparent');
+        });
+
+        // Soumission AJAX si dans une popup
+        if (window.opener) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Envoyer un message à la fenêtre parent
+                            window.opener.postMessage({
+                                type: 'publisherAdded',
+                                publisher: data.publisher
+                            }, '*');
+                            window.close();
+                        } else {
+                            // Afficher les erreurs
+                            alert('Erreur: ' + JSON.stringify(data.errors));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        alert('Une erreur est survenue');
+                    });
+            });
+        }
+    });
+</script>
+{% endblock %}

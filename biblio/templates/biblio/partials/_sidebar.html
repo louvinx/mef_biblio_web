@@ -1,0 +1,165 @@
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transition-transform duration-300 transform -translate-x-full md:translate-x-0 flex flex-col h-screen overflow-y-auto border-r border-gray-200 p-4">
+    
+    <!-- Contenu principal qui prend tout l'espace disponible -->
+    <div class="flex-1">
+        <!-- Navigation principale -->
+        <div class="mb-6">
+            <h2 class="mb-3 text-sm font-semibold tracking-wide uppercase text-white opacity-90">Navigation</h2>
+            <ul class="space-y-1">
+                <li>
+                    <a href="{% url 'index' %}"
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'index' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        <i class="w-5 mr-3 fas fa-book"></i>
+                        <span class="text-sm font-medium">Bibliothèque</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'add_book' %}"
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_book' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        <i class="w-5 mr-3 fas fa-plus-circle"></i>
+                        <span class="text-sm">Ajouter un livre</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'add_author' %}"
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_author' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        <i class="w-5 mr-3 fas fa-user-plus"></i>
+                        <span class="text-sm">Gérer les auteurs</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'add_category' %}"
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_category' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        <i class="w-5 mr-3 fas fa-tags"></i>
+                        <span class="text-sm">Gérer les catégories</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'add_publisher' %}"
+                        class="flex items-center p-3 text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_publisher' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        <i class="w-5 mr-3 fas fa-building"></i>
+                        <span class="text-sm">Gérer les éditeurs</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'book_list' %}"
+                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'book_list' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
+                        <i class="w-5 mr-3 fas fa-list"></i>
+                        <span class="text-sm">Liste des livres</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Statistiques rapides -->
+        <div class="mt-16">
+            <h2 class="mb-4 text-sm font-semibold tracking-wide uppercase text-white opacity-90">Aperçu Rapide</h2>
+
+            <div class="grid grid-cols-1 gap-3">
+                <!-- Livres -->
+                <div class="flex items-center gap-3">
+                    <div class="flex-1">
+                        <div class="text-sm font-bold text-white">{{ stats.total }}</div>
+                        <div class="text-xs text-white opacity-80">Livres total</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-semibold text-green-300">{{ stats.available }} disp.</div>
+                        <div class="text-xs text-white opacity-70">{{ stats.borrowed }} empr.</div>
+                    </div>
+                </div>
+
+                <!-- Auteurs -->
+                <div class="flex items-center gap-3">
+                    <div>
+                        <div class="text-sm font-bold text-white">{{ total_authors }}</div>
+                        <div class="text-xs text-white opacity-80">Auteurs</div>
+                    </div>
+                </div>
+
+                <!-- Catégories -->
+                <div class="flex items-center gap-3">
+                    <div>
+                        <div class="text-sm font-bold text-white">{{ total_categories }}</div>
+                        <div class="text-xs text-white opacity-80">Catégories</div>
+                    </div>
+                </div>
+
+                <!-- Éditeurs -->
+                <div class="flex items-center gap-3">
+                    <div>
+                        <div class="text-sm font-bold text-white">{{ total_publishers }}</div>
+                        <div class="text-xs text-white opacity-80">Éditeurs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer en bas -->
+    <div class="pt-4 mt-8">
+        <p class="text-sm text-center text-white opacity-70">
+            © {% now "Y" %} Bibliothèque MEF. Tous droits réservés.
+        </p>
+    </div>
+</aside>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des liens actifs au clic
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Fonction pour normaliser les URLs
+    function normalizeUrl(url) {
+        // Supprimer le slash final s'il existe
+        return url.replace(/\/$/, '');
+    }
+    
+    // Fonction pour mettre à jour les liens actifs
+    function updateActiveLinks() {
+        const currentPath = normalizeUrl(window.location.pathname);
+        
+        navLinks.forEach(link => {
+            const linkHref = normalizeUrl(link.getAttribute('href'));
+            
+            // Vérifier si le lien correspond au chemin actuel
+            if (linkHref === currentPath || 
+                (currentPath === '' && linkHref === '/') ||
+                (currentPath === normalizeUrl("{% url 'index' %}") && linkHref === normalizeUrl("{% url 'index' %}"))) {
+                
+                // Retirer les classes actives de tous les liens
+                navLinks.forEach(l => {
+                    l.classList.remove('active', 'bg-white', 'bg-opacity-20');
+                    l.classList.add('opacity-80');
+                });
+                
+                // Ajouter les classes actives au lien correspondant
+                link.classList.add('active', 'bg-white', 'bg-opacity-20');
+                link.classList.remove('opacity-80');
+                
+                // Stocker dans localStorage
+                localStorage.setItem('activeNavLink', link.getAttribute('href'));
+            }
+        });
+    }
+    
+    // Événement de clic sur les liens
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Pour les liens normaux, laisser le comportement par défaut
+            // Le rechargement de la page déclenchera updateActiveLinks()
+            
+            // Stocker le lien cliqué pour une restauration immédiate si nécessaire
+            localStorage.setItem('activeNavLink', this.getAttribute('href'));
+        });
+    });
+    
+    // Mettre à jour les liens actifs au chargement
+    updateActiveLinks();
+    
+    // Écouter les changements d'URL (pour les SPA ou navigation sans rechargement)
+    window.addEventListener('popstate', updateActiveLinks);
+    
+    // Vérifier également après un délai court au cas où
+    setTimeout(updateActiveLinks, 100);
+});
+</script>

@@ -1,0 +1,33 @@
+<header class="bg-white border-b">
+    <div class="w-full px-4 py-3 mx-auto">
+        <div class="flex items-center justify-between">
+            <div class=" text-center">
+                <div class="flex justify-center items-center space-x-3 text-primary">
+                    <div class="text-left">
+                        <h1 class="text-lg font-bold">Bibliothèque</h1>
+                        <p class="text-xs">MEF/DDNE</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="items-center hidden space-x-4 md:flex">
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm p-2 text-primary bg-gray-200 rounded ">
+                        <i class="w-5 fas fa-user"></i>{{ user.username }}</span>
+                    <form method="post" action="{% url 'logout' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="px-3 py-2 text-sm bg-red-700 rounded text-white hover:bg-primary-dark transition-colors duration-200 cursor-pointer">
+                            Déconnexion
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <button id="mobile-menu-button" class="text-gray-600 md:hidden">
+                <i class="text-xl fas fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,559 @@
+{% extends 'biblio/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-6xl p-6 mx-auto">
+    <h2 class="mb-6 text-2xl font-bold text-center ">
+        {% if book %}Modifier le livre{% else %}Ajouter un livre{% endif %}
+    </h2>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6" id="book-form">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="p-4 text-sm text-red-700 bg-red-100 rounded">
+            <ul class="list-disc list-inside">
+                {% for field, errors in form.errors.items %}
+                    {% if field != '__all__' %}
+                        {% for error in errors %}
+                        <li><strong>{{ field|title }}</strong>: {{ error }}</li>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- Toggle pour le type de livre -->
+        <div class="p-4 border border-gray-300 rounded">
+            <label class="block mb-3 text-sm font-medium ">
+                Type de livre *
+            </label>
+            <div class="flex flex-wrap gap-4">
+                <label class="flex items-center">
+                    <input type="radio" name="book_type" value="physical" 
+                           {% if form.book_type.value == 'physical' or not book or not book.file %}checked{% endif %} 
+                           onchange="toggleBookType()"
+                           class="mr-2 text-primary focus:ring-primary">
+                    <span class="text-sm font-medium">Livre physique</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="book_type" value="digital" 
+                           {% if form.book_type.value == 'digital' or book and book.file %}checked{% endif %}
+                           onchange="toggleBookType()"
+                           class="mr-2 text-primary focus:ring-primary">
+                    <span class="text-sm font-medium">Livre numérique</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <!-- Titre et ISBN -->
+            <div class="col-span-2">
+                <label for="{{ form.title.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                    Titre du livre *
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.isbn.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                    ISBN
+                </label>
+                {{ form.isbn }}
+                {% if form.isbn.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.isbn.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Année et langue -->
+            <div>
+                <label for="{{ form.publication_year.id_for_label }}"
+                    class="block mb-2 text-sm font-medium ">
+                    Année de publication
+                </label>
+                {{ form.publication_year }}
+                {% if form.publication_year.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.publication_year.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.language.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                    Langue *
+                </label>
+                {{ form.language }}
+                {% if form.language.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.language.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Pages et exemplaires -->
+            <div>
+                <label for="{{ form.pages.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                    Nombre de pages
+                </label>
+                {{ form.pages }}
+                {% if form.pages.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.pages.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Champs conditionnels pour livre physique -->
+            <div id="physical-fields">
+                <div>
+                    <label for="{{ form.total_copies.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                        Exemplaires totaux *
+                    </label>
+                    {{ form.total_copies }}
+                    {% if form.total_copies.errors %}
+                    <div class="mt-1 text-sm text-red-600">{{ form.total_copies.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.available_copies.id_for_label }}"
+                        class="block mb-2 text-sm font-medium ">
+                        Exemplaires disponibles *
+                    </label>
+                    {{ form.available_copies }}
+                    {% if form.available_copies.errors %}
+                    <div class="mt-1 text-sm text-red-600">{{ form.available_copies.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-span-2">
+                    <label for="{{ form.location.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                        Emplacement physique
+                    </label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                    <div class="mt-1 text-sm text-red-600">{{ form.location.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Statut -->
+            <div>
+                <label for="{{ form.status.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                    Statut
+                </label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.status.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Champ fichier pour livre numérique -->
+            <div id="digital-fields" class="col-span-2" style="display: none;">
+                <label for="{{ form.file.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                    Fichier (PDF, EPUB, MOBI) *
+                </label>
+                {{ form.file }}
+                {% if form.file.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.file.errors }}</div>
+                {% endif %}
+                
+                <!-- Affichage du fichier actuel avec options -->
+                {% if book and book.file %}
+                <div class="mt-4 p-4 bg-blue-50 rounded">
+                    <h4 class="text-lg font-semibold text-blue-800 mb-2">Fichier actuel</h4>
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <span class="text-sm ">{{ book.file.name }}</span>
+                        <div class="flex gap-2">
+                            <a href="{% url 'download_book' book.book_id %}" 
+                               class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                                📥 Télécharger
+                            </a>
+                            <a href="{% url 'read_book' book.book_id %}" 
+                               target="_blank"
+                               class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                                📖 Lire
+                            </a>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-xs text-blue-600">
+                        Pour changer le fichier, sélectionnez un nouveau fichier ci-dessus.
+                    </p>
+                </div>
+                {% endif %}
+                
+                <p class="mt-1 text-xs text-gray-800">
+                    Formats acceptés: PDF, EPUB, MOBI. Taille maximale: 50MB.
+                </p>
+            </div>
+
+            <!-- Auteurs -->
+            <div class="col-span-2">
+                <label class="block mb-2 text-sm font-medium ">
+                    Auteurs *
+                </label>
+                <div class="space-y-3">
+                    <!-- Liste des auteurs sélectionnés -->
+                    <div id="selected-authors"
+                        class="flex flex-wrap gap-2 min-h-10 p-2 border border-gray-300 rounded">
+                        {% if book %}
+                            {% for author in book.authors.all %}
+                            <span class="inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
+                                {{ author.name }}
+                                <input type="hidden" name="authors" value="{{ author.pk }}">
+                                <button type="button" class="ml-2 text-blue-600 hover:text-blue-800"
+                                    onclick="removeSelection(this, 'author')">
+                                    ×
+                                </button>
+                            </span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Interface de sélection -->
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <select id="author-select" class="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80">
+                            <option value="">Sélectionnez un auteur...</option>
+                            {% for author in authors %}
+                            <option value="{{ author.pk }}" data-name="{{ author.name }}">
+                                {{ author.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" onclick="addAuthor()"
+                            class="px-4 py-2 text-white bg-primary rounded hover:bg-primary/90">
+                            Ajouter
+                        </button>
+                        <button type="button" onclick="openPopup('{% url 'add_author' %}', 'author')"
+                            class="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700">
+                            + Nouveau
+                        </button>
+                    </div>
+                </div>
+                {% if form.authors.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.authors.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Catégories -->
+            <div class="col-span-2">
+                <label class="block mb-2 text-sm font-medium ">
+                    Catégories *
+                </label>
+                <div class="space-y-3">
+                    <!-- Liste des catégories sélectionnées -->
+                    <div id="selected-categories"
+                        class="flex flex-wrap gap-2 min-h-10 p-2 border border-gray-300 rounded">
+                        {% if book %}
+                            {% for category in book.categories.all %}
+                            <span
+                                class="inline-flex items-center px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full">
+                                {{ category.category_name }}
+                                <input type="hidden" name="categories" value="{{ category.pk }}">
+                                <button type="button" class="ml-2 text-green-600 hover:text-green-800"
+                                    onclick="removeSelection(this, 'category')">
+                                    ×
+                                </button>
+                            </span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Interface de sélection -->
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <select id="category-select" class="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80">
+                            <option value="">Sélectionnez une catégorie...</option>
+                            {% for category in categories %}
+                            <option value="{{ category.pk }}" data-name="{{ category.category_name }}">
+                                {{ category.category_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" onclick="addCategory()"
+                            class="px-4 py-2 text-white bg-primary rounded hover:bg-primary/90">
+                            Ajouter
+                        </button>
+                        <button type="button" onclick="openPopup('{% url 'add_category' %}', 'category')"
+                            class="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700">
+                            + Nouvelle
+                        </button>
+                    </div>
+                </div>
+                {% if form.categories.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.categories.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Éditeur -->
+            <div class="col-span-2">
+                <label class="block mb-2 text-sm font-medium ">
+                    Éditeur
+                </label>
+                <div class="space-y-3">
+                    <!-- Éditeur sélectionné -->
+                    <div id="selected-publisher" class="min-h-10 p-2 border border-gray-300 rounded">
+                        {% if book and book.publisher %}
+                        <span
+                            class="inline-flex items-center px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full">
+                            {{ book.publisher.publisher_name }}
+                            <input type="hidden" name="publisher" value="{{ book.publisher.pk }}"
+                                id="publisher-input">
+                            <button type="button" class="ml-2 text-purple-600 hover:text-purple-800"
+                                onclick="removePublisher()">
+                                ×
+                            </button>
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Interface de sélection -->
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <select id="publisher-select" class="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80">
+                            <option value="">Sélectionnez un éditeur...</option>
+                            {% for publisher in publishers %}
+                            <option value="{{ publisher.pk }}" data-name="{{ publisher.publisher_name }}">
+                                {{ publisher.publisher_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" onclick="addPublisher()"
+                            class="px-4 py-2 text-white bg-primary rounded hover:bg-primary/90">
+                            Sélectionner
+                        </button>
+                        <button type="button" onclick="openPopup('{% url 'add_publisher' %}', 'publisher')"
+                            class="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700">
+                            + Nouveau
+                        </button>
+                    </div>
+                </div>
+                {% if form.publisher.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.publisher.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Résumé -->
+            <div class="col-span-2">
+                <label for="{{ form.summary.id_for_label }}" class="block mb-2 text-sm font-medium ">
+                    Résumé
+                </label>
+                {{ form.summary }}
+                {% if form.summary.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.summary.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions conditionnelles selon le type de livre -->
+        <div class="mt-6 p-4 border border-gray-300 rounded">
+            <h3 class="mb-3 text-lg font-semibold ">Informations du livre</h3>
+            {% if book and book.file %}
+            <div class="flex gap-2">
+                <a href="{% url 'read_book' book.book_id %}" target="_blank" 
+                   class="flex-1 px-3 py-2 text-sm text-center text-white bg-green-600 rounded hover:bg-green-700">
+                   <i class="fas fa-eye mr-1"></i>Lire
+                </a>
+                <a href="{% url 'download_book' book.book_id %}" 
+                   class="flex-1 px-3 py-2 text-sm text-center text-white bg-blue-600 rounded hover:bg-blue-700">
+                   <i class="fas fa-download mr-1"></i>Télécharger
+                </a>
+            </div>
+            <p class="mt-1 text-xs text-center text-gray-600">
+                Format: {% if book.file.name %}{{ book.file.name|slice:'-4:'|upper }}{% else %}PDF{% endif %}
+            </p>
+            {% elif book %}
+            <div class="text-center">
+                <div class="inline-flex items-center px-3 py-1 text-sm bg-gray-100  rounded-full">
+                    <i class="fas fa-book mr-1"></i>
+                    Livre physique - {{ book.available_copies }}/{{ book.total_copies }} disponibles
+                </div>
+                {% if book.location %}
+                <p class="mt-1 text-xs text-gray-600">
+                    <i class="fas fa-map-marker-alt mr-1"></i>{{ book.location }}
+                </p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t text-sm">
+            <button type="submit" class="flex-1 py-3 text-white bg-gray-800 rounded hover:bg-gray-700">
+                {% if book %}Modifier le livre{% else %}Ajouter le livre{% endif %}
+            </button>
+            <a href="{% url 'book_list' %}"
+                class="flex-1 py-3 text-center  bg-gray-100 rounded hover:bg-gray-200">
+                Annuler
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Fonction pour basculer entre livre physique et numérique
+    function toggleBookType() {
+        const physicalRadio = document.querySelector('input[name="book_type"][value="physical"]');
+        const digitalRadio = document.querySelector('input[name="book_type"][value="digital"]');
+        const physicalFields = document.getElementById('physical-fields');
+        const digitalFields = document.getElementById('digital-fields');
+        const fileInput = document.querySelector('input[type="file"]');
+
+        if (physicalRadio.checked) {
+            physicalFields.style.display = 'block';
+            digitalFields.style.display = 'none';
+            if (fileInput) {
+                fileInput.removeAttribute('required');
+                fileInput.disabled = true;
+            }
+        } else {
+            physicalFields.style.display = 'none';
+            digitalFields.style.display = 'block';
+            if (fileInput) {
+                fileInput.setAttribute('required', 'required');
+                fileInput.disabled = false;
+            }
+        }
+    }
+
+    // Initialiser au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleBookType();
+    });
+
+    // Les autres fonctions JavaScript restent les mêmes...
+    function openPopup(url, type) {
+        const popup = window.open(url, 'popup', 'width=1000,height=700,scrollbars=yes,resizable=yes');
+        if (!popup || popup.closed) {
+            alert('Veuillez autoriser les popups pour ce site');
+            return;
+        }
+        popup.popupType = type;
+    }
+
+    function addAuthor() {
+        const select = document.getElementById('author-select');
+        const authorId = select.value;
+        const authorName = select.options[select.selectedIndex].getAttribute('data-name');
+
+        if (!authorId) {
+            alert('Veuillez sélectionner un auteur');
+            return;
+        }
+
+        if (document.querySelector(`#selected-authors input[value="${authorId}"]`)) {
+            alert('Cet auteur est déjà sélectionné');
+            return;
+        }
+
+        const badge = document.createElement('span');
+        badge.className = 'inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full';
+        badge.innerHTML = `
+            ${authorName}
+            <input type="hidden" name="authors" value="${authorId}">
+            <button type="button" class="ml-2 text-blue-600 hover:text-blue-800" onclick="removeSelection(this, 'author')">
+                ×
+            </button>
+        `;
+        document.getElementById('selected-authors').appendChild(badge);
+        select.value = '';
+    }
+
+    function addCategory() {
+        const select = document.getElementById('category-select');
+        const categoryId = select.value;
+        const categoryName = select.options[select.selectedIndex].getAttribute('data-name');
+
+        if (!categoryId) {
+            alert('Veuillez sélectionner une catégorie');
+            return;
+        }
+
+        if (document.querySelector(`#selected-categories input[value="${categoryId}"]`)) {
+            alert('Cette catégorie est déjà sélectionnée');
+            return;
+        }
+
+        const badge = document.createElement('span');
+        badge.className = 'inline-flex items-center px-3 py-1 text-sm bg-green-100 text-green-800 rounded-full';
+        badge.innerHTML = `
+            ${categoryName}
+            <input type="hidden" name="categories" value="${categoryId}">
+            <button type="button" class="ml-2 text-green-600 hover:text-green-800" onclick="removeSelection(this, 'category')">
+                ×
+            </button>
+        `;
+        document.getElementById('selected-categories').appendChild(badge);
+        select.value = '';
+    }
+
+    function addPublisher() {
+        const select = document.getElementById('publisher-select');
+        const publisherId = select.value;
+        const publisherName = select.options[select.selectedIndex].getAttribute('data-name');
+
+        if (!publisherId) {
+            alert('Veuillez sélectionner un éditeur');
+            return;
+        }
+
+        document.getElementById('selected-publisher').innerHTML = '';
+
+        const badge = document.createElement('span');
+        badge.className = 'inline-flex items-center px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full';
+        badge.innerHTML = `
+            ${publisherName}
+            <input type="hidden" name="publisher" value="${publisherId}" id="publisher-input">
+            <button type="button" class="ml-2 text-purple-600 hover:text-purple-800" onclick="removePublisher()">
+                ×
+            </button>
+        `;
+        document.getElementById('selected-publisher').appendChild(badge);
+        select.value = '';
+    }
+
+    function removePublisher() {
+        document.getElementById('selected-publisher').innerHTML = '';
+    }
+
+    function removeSelection(button, type) {
+        button.parentElement.remove();
+    }
+
+    function refreshSelect(selectId, url, displayField) {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">Sélectionnez...</option>';
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = item[displayField] || item.name || item.full_name;
+                        option.setAttribute('data-name', item[displayField] || item.name || item.full_name);
+                        select.appendChild(option);
+                    });
+                    if (currentValue) select.value = currentValue;
+                }
+            })
+            .catch(error => console.error('Erreur lors du rafraîchissement:', error));
+    }
+
+    window.addEventListener('message', function (event) {
+        if (event.data && event.data.type) {
+            switch (event.data.type) {
+                case 'authorAdded':
+                    refreshSelect('author-select', '{% url "api_authors" %}', 'full_name');
+                    break;
+                case 'categoryAdded':
+                    refreshSelect('category-select', '{% url "api_categories" %}', 'category_name');
+                    break;
+                case 'publisherAdded':
+                    refreshSelect('publisher-select', '{% url "api_publishers" %}', 'publisher_name');
+                    break;
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bibliothèque MEF/DDNE</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#16476a',
+                        secondary: '#e74c3c',
+                        lightblue: '#f0f7ff',
+                        darkblue: '#0a2e4a',
+                    },
+                    fontFamily: {
+                        sans: ['Roboto', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body class="font-sans bg-white text-primary">
+
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-md">
+            <!-- Carte de connexion -->
+            <div class="bg-white ">
+                <!-- En-tête avec logo -->
+                <div class=" text-center">
+                    <div class="flex flex-col justify-center items-center space-x-3">
+                        <img src="/static/logo.png" alt="Logo MEF/DDNE" class="h-24 w-auto">
+                        <div class="text-center">
+                            <h1 class="text-2xl font-bold">Bibliothèque</h1>
+                            <p class="text-sm">MEF/DDNE</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulaire -->
+                <div class="p-8">
+                    <h2 class="mb-6 text-2xl font-bold text-center">Connexion</h2>
+
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="p-3 text-sm text-red-700 bg-red-100 border border-red-200 rounded">
+                            <p>Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Champ nom d'utilisateur -->
+                        <div>
+                            <label for="id_username" class="block mb-2 text-sm font-medium ">
+                                Nom d'utilisateur
+                            </label>
+                            <input type="text" name="username" id="id_username" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-primary"
+                                placeholder="Entrez votre nom d'utilisateur">
+                        </div>
+
+                        <!-- Champ mot de passe -->
+                        <div>
+                            <label for="id_password" class="block mb-2 text-sm font-medium ">
+                                Mot de passe
+                            </label>
+                            <div class="relative">
+                                <input type="password" name="password" id="id_password" required
+                                    class="w-full px-3 py-2 pr-10 border border-gray-300 rounded focus:outline-none focus:border-primary"
+                                    placeholder="Entrez votre mot de passe">
+                                <button type="button" 
+                                        onclick="togglePassword()" 
+                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-600 hover:text-primary">
+                                    <span id="toggleText">Afficher</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Bouton de connexion -->
+                        <button type="submit"
+                            class="w-full py-3 px-4 bg-primary text-white font-medium rounded hover:bg-darkblue focus:outline-none">
+                            Se connecter
+                        </button>
+
+                        <input type="hidden" name="next" value="{{ next }}">
+                    </form>
+
+                    <!-- Informations supplémentaires -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <p class="text-center text-sm text-gray-800">
+                            Pour toute assistance, contactez l'administration
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-6">
+                <p class="text-sm text-gray-600">
+                    &copy; {% now "Y" %} Bibliothèque MEF/DDNE
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('id_password');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleText.textContent = 'Masquer';
+            } else {
+                passwordInput.type = 'password';
+                toggleText.textContent = 'Afficher';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
