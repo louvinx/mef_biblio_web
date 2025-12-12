@@ -1,5 +1,8 @@
 from django.urls import path
 from . import views
+from . import views_auth
+from . import views_loan
+from . import views_favorites
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -44,8 +47,33 @@ urlpatterns = [
     path('books/export/excel/', views.export_books_excel, name='export_books_excel'),
     path('books/export/pdf/', views.export_books_pdf, name='export_books_pdf'),
     path('books/export/word/', views.export_books_word, name='export_books_word'),
+    
+    # Authentication URLs
+    path('register/', views_auth.register_view, name='register'),
+    path('login/', views_auth.login_view, name='login'),
+    path('logout/', views_auth.logout_view, name='logout'),
+    path('profile/', views_auth.profile_view, name='profile'),
+    path('profile/change-password/', views_auth.change_password_view, name='change_password'),
+    
+    # User management URLs (admin only)
+    path('users/', views_auth.users_list_view, name='users_list'),
+    path('users/<int:user_id>/', views_auth.user_detail_view, name='user_detail'),
+    path('users/<int:user_id>/change-role/', views_auth.change_user_role_view, name='change_user_role'),
+    path('users/<int:user_id>/delete/', views_auth.delete_user_view, name='delete_user'),
+    
+    # Loan management URLs
+    path('loans/', views_loan.loan_list, name='loan_list'),
+    path('loans/create/', views_loan.create_loan, name='create_loan'),
+    path('loans/my-loans/', views_loan.my_loans, name='my_loans'),
+    path('loans/<int:loan_id>/return/', views_loan.return_loan, name='return_loan'),
+    
+    
+    # Favorites URLs
+    path('favorites/', views_favorites.favorites_list_view, name='favorites_list'),
+    path('favorites/toggle/<int:book_id>/', views_favorites.toggle_favorite_view, name='toggle_favorite'),
+    path('favorites/remove/<int:favorite_id>/', views_favorites.remove_favorite_view, name='remove_favorite'),
+    path('favorites/check/<int:book_id>/', views_favorites.check_favorite_status, name='check_favorite_status'),
+    
+    # API for user info
+    path('api/user/info/', views_auth.api_user_info, name='api_user_info'),
 ]
-
-# Servir les fichiers média en développement
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

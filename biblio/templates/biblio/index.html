@@ -2,185 +2,221 @@
 {% load static %}
 
 {% block content %}
-<div  class="p-6">
-<!-- En-tête de la bibliothèque -->
-<div class="p-4 mb-6 border border-gray-300 rounded">
-    <div class="flex flex-col items-start justify-between md:flex-row md:items-center">
-        <div>
-            <h2 class="text-2xl font-bold text-primary">Bibliothèque</h2>
-            <p class="text-gray-600">Découvrez et gérez votre collection de livres</p>
-        </div>
-
-        <div class="flex items-center mt-4 space-x-3 md:mt-0">
-<!--            <div class="flex p-1 bg-gray-100 rounded">
-                <button class="p-2  rounded shadow-sm text-primary grid-view-btn">
-                    <i class="fas fa-th"></i>
-                </button>
-                <button class="p-2 bg-white text-gray-800 hover:text-primary list-view-btn">
-                    <i class="fas fa-list"></i>
-                </button>
+<div class="p-6">
+    <!-- En-tête de la bibliothèque -->
+    <div class="p-4 mb-6 border border-gray-300 rounded-md">
+        <div class="flex flex-col items-start justify-between md:flex-row md:items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-primary">Bibliothèque</h2>
+                <p class="text-gray-600">Découvrez et gérez votre collection de livres</p>
             </div>
--->
-            <div class="relative">
-                <select id="sort-select" class="py-2 pl-3 pr-8 bg-white border border-gray-300 rounded appearance-none focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent">
-                    <option value="created_at">Trier par: Récent</option>
-                    <option value="title">Triter par: A-Z</option>
-                    <option value="publication_year">Trier par: Année</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 flex items-center px-2  pointer-events-none">
-                    <i class="fas fa-chevron-down"></i>
+        </div>
+    </div>
+
+    <!-- Barre de recherche et filtres -->
+    <div class="mb-10">
+        <div class="flex flex-col gap-4 md:flex-row">
+            <div class="flex-1">
+                <div class="relative">
+                    <i class="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2 w-5 h-5" data-lucide="search"></i>
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Rechercher des livres, auteurs, éditeurs..."
+                        class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-accent focus:border-transparent"
+                    />
                 </div>
             </div>
+            <button id="search-btn" class="px-6 py-2 text-white rounded-md bg-primary hover:bg-primary-dark flex items-center">
+                <i class="w-4 h-4 mr-2" data-lucide="search"></i>Rechercher
+            </button>
         </div>
-    </div>
-</div>
-
-<!-- Barre de recherche et filtres -->
-<div class="mb-10">
-    <div class="flex flex-col gap-4 md:flex-row">
-        <div class="flex-1">
-            <div class="relative">
-                <i class="absolute text-gray-400 transform -translate-y-1/2 fas fa-search left-3 top-1/2"></i>
-                <input
-                    type="text"
-                    id="search-input"
-                    placeholder="Rechercher des livres, auteurs, éditeurs..."
-                    class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded focus:ring-2 focus:ring-accent focus:border-transparent"
-                />
-            </div>
-        </div>
-        <button id="search-btn" class="px-6 py-2 text-white rounded bg-primary hover:bg-primary-dark">
-            <i class="fas fa-search mr-2"></i>Rechercher
-        </button>
-    </div>
-    
-    <div class="flex flex-wrap gap-2 mt-4">
-        <select id="category-filter" class="px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-accent">
-            <option value="">Toutes les catégories</option>
-            {% for category in categories %}
-            <option value="{{ category.category_id }}">{{ category.category_name }}</option>
-            {% endfor %}
-        </select>
-        <select id="format-filter" class="px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-accent">
-            <option value="">Tous les formats</option>
-            <option value="physical">Physique</option>
-            <option value="digital">Numérique</option>
-        </select>
-    </div>
-
-    <!-- Filtres actifs -->
-    <div id="active-filters" class="flex flex-wrap gap-2 mt-4">
-        <!-- Les filtres actifs seront ajoutés ici dynamiquement -->
-    </div>
-</div>
-
-<!-- Grille des livres populaires -->
-<div class="flex items-center justify-between mb-6">
-    <h3 class="text-lg font-semibold ">Livres populaires</h3>
-    <a href="{% url 'book_list' %}" class="text-sm text-primary hover:underline">Voir tout</a>
-</div>
-
-<div class="grid grid-cols-2 gap-4 mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-    {% for book in popular_books %}
-    <div class="overflow-hidden  transition-all duration-300 border border-gray-200 rounded shadow-md bg-card  hover:shadow-xl hover:border-primary/50 hover:-translate-y-2">
-        <!-- En-tête avec badge populaire -->
         
-        <div class="p-3 ">
-            <h4 class="mb-1 text-sm font-bold whitespace-normal">{{ book.title }}</h4>
-            <p class="mb-2 text-xs text-gray-600">
-                {% with book.authors.all|first as first_author %}
-                    {{ first_author.name }}
-                {% endwith %}
-            </p>
-            
-            
-            <div class="flex items-start flex-wrap gap-2 flex-col justify-between">
-                <!-- Badge de statut -->
-                {% if book.status == 'available' %}
-                    <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Disponible</span>
-                {% elif book.status == 'borrowed' %}
-                    <span class="px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded-full">Emprunté</span>
-                {% endif %}
+        <div class="flex flex-wrap gap-2 mt-4"> 
+            <select id="category-filter" class="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-accent">
+                <option value="">Toutes les catégories</option>
+                {% for category in categories %}
+                <option value="{{ category.category_id }}">{{ category.category_name }}</option>
+                {% endfor %}
+            </select>
+            <select id="format-filter" class="px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-accent">
+                <option value="">Tous les formats</option>
+                <option value="digital">Numérique (PDF)</option>
+                <option value="physical">Physique</option>
+            </select>
+            <select id="sort-select" class="hidden px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-accent">
+                <option value="title">Trier par: Titre A-Z</option>
+                <option value="-title">Titre Z-A</option>
+                <option value="-popularity">Plus populaires</option>
+                <option value="-created_at">Plus récents</option>
+                <option value="created_at">Plus anciens</option>
+            </select>
+        </div>
 
-                
-                <!-- Badge de type -->
-                {% if book.file %}
-                    <span class="px-2 py-1 text-xs font-semibold text-blue-800 bg-blue-100 rounded-full">
-                        {% if book.file.name %}
-                            {{ book.file.name|slice:'-4:'|upper }}
-                        {% else %}
-                            PDF
-                        {% endif %}
-                    </span>
-                {% else %}
-                    <span class="px-2 py-1 text-xs font-semibold  bg-gray-100 rounded-full">Physique</span>
-                {% endif %}
-                   <span class="px-1 flex-1 py-1 text-xs font-bold text-yellow-800 bg-yellow-400 rounded-full">
-                    <i class="fas fa-fire mr-1"></i>Populaire
-                </span>
-            </div>
-            
-            <!-- Actions conditionnelles -->
-            {% if book.file %}
-            <div class="flex gap-2 mt-3">
-                <a href="{% url 'read_book' book.book_id %}" target="_blank" 
-                   class="flex-1 px-3 py-2 text-xs font-semibold text-center text-white bg-green-600 rounded hover:from-green-600 hover:to-green-700 transition-all duration-200">
-                   <i class="fas fa-eye mr-1"></i>Lire
-                </a>
-                <a href="{% url 'download_book' book.book_id %}" 
-                   class="flex-1 px-3 py-2 text-xs font-semibold text-center text-white bg-blue-600 rounded hover:from-blue-600 hover:to-blue-700 transition-all duration-200">
-                   <i class="fas fa-download mr-1"></i>Télé.
-                </a>
-            </div>
-            {% else %}
-            <div class="mt-3 text-xs text-center text-gray-600 bg-gray-50 py-2 rounded-lg">
-                <i class="fas fa-copy mr-1"></i>
-                {{ book.available_copies }}/{{ book.total_copies }} exemplaires
+        <!-- Filtres actifs -->
+        <div id="active-filters" class="flex flex-wrap gap-2 mt-4">
+            <!-- Les filtres actifs seront ajoutés ici dynamiquement -->
+        </div>
+    </div>
+
+    <!-- Grille des livres populaires -->
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold ">Livres populaires</h3>
+        <a href="{% url 'book_list' %}" class="text-sm text-primary hover:underline">Voir tout</a>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-8 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {% for book in popular_books %}
+        <div class="overflow-hidden transition-all duration-300 border border-gray-200 rounded-md shadow-md bg-card hover:shadow-lg hover:border-primary/30 hover:-translate-y-1">
+            {% if book.cover_image %}
+            <div class="aspect-[2/3] w-full overflow-hidden relative">
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+                <!-- Spine effect overlay -->
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-black/10 z-10"></div>
             </div>
             {% endif %}
+            <div class="p-3">
+                <h4 class="mb-1 text-sm font-bold whitespace-normal">{{ book.title }}</h4>
+                <p class="mb-2 text-xs text-gray-600">
+                    {% with book.authors.all|first as first_author %}
+                        {{ first_author.name }}
+                    {% endwith %}
+                </p>
+                
+                <div class="flex items-start flex-wrap gap-2 flex-col justify-between">
+                    <!-- Badge de statut -->
+                    {% if book.status == 'available' %}
+                        <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-md">Disponible</span>
+                    {% elif book.status == 'borrowed' %}
+                        <span class="px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded-md">Emprunté</span>
+                    {% endif %}
+
+                    <!-- Badge de type -->
+                    {% if book.file %}
+                        <span class="px-2 py-1 text-xs font-semibold text-blue-800 bg-blue-100 rounded-md">
+                            {% if book.file.name %}
+                                {{ book.file.name|slice:'-4:'|upper }}
+                            {% else %}
+                                PDF
+                            {% endif %}
+                        </span>
+                    {% else %}
+                        <span class="px-2 py-1 text-xs font-semibold bg-gray-100 rounded-md">Physique</span>
+                    {% endif %}
+                    <span class="px-1 flex-1 py-1 text-xs font-bold text-yellow-800 bg-yellow-100 rounded-md flex items-center justify-center">
+                        <i class="w-3 h-3 mr-1" data-lucide="flame"></i>Populaire
+                    </span>
+                </div>
+                
+                <!-- Actions conditionnelles -->
+                {% if book.file %}
+                <div class="flex gap-2 mt-3">
+                    <a href="{% url 'read_book' book.book_id %}" target="_blank" 
+                       class="flex-1 px-3 py-2 text-xs font-semibold text-center text-white bg-green-600 rounded-md hover:bg-green-700 transition-all duration-200 flex items-center justify-center">
+                       <i class="w-3 h-3 mr-1" data-lucide="eye"></i>Lire
+                    </a>
+                    <a href="{% url 'download_book' book.book_id %}" 
+                       class="flex-1 px-3 py-2 text-xs font-semibold text-center text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-all duration-200 flex items-center justify-center">
+                       <i class="w-3 h-3 mr-1" data-lucide="download"></i>Télé.
+                    </a>
+                </div>
+                {% else %}
+                <div class="mt-3 text-xs text-center text-gray-600 bg-gray-50 py-2 rounded-md flex items-center justify-center">
+                    <i class="w-3 h-3 mr-1" data-lucide="copy"></i>
+                    {{ book.available_copies }}/{{ book.total_copies }} exemplaires
+                </div>
+                {% endif %}
+                
+                <!-- Bouton détails pour ouvrir le modal -->
+                <button onclick="showBookDetails('{{ book.book_id }}')" 
+                        class="w-full mt-2 px-3 py-1.5 text-xs text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-900 transition-colors duration-200 flex items-center justify-center">
+                    <i class="w-3 h-3 mr-1" data-lucide="info"></i>Détails
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Tous les livres -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h3 class="text-lg font-semibold ">Tous les livres</h3>
+            <div class="text-sm text-gray-600">
+                <span id="total-books">{{ total_books }}</span> livres
+                <span id="available-books" class="ml-2 text-green-600">(<span>{{ stats.available }}</span> disponibles)</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="text-sm text-gray-600">
+                <span id="view-count">Affichage: 12 par page</span>
+            </div>
         </div>
     </div>
-    {% endfor %}
-</div>
 
-<!-- Tous les livres -->
-<div class="flex items-center justify-between mb-6">
-    <h3 class="text-lg font-semibold ">Tous les livres</h3>
-    <div class="text-sm text-gray-600">
-        <span id="total-books">{{ total_books }}</span> livres
-        <span id="available-books" class="ml-2 text-green-600">(<span>{{ stats.available }}</span> disponibles)</span>
+    <!-- Conteneur des livres -->
+    <div id="books-container">
+        <div id="books-list" class="mb-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <!-- Les livres en liste seront chargés dynamiquement -->
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center mt-8"></div>
+
+    <!-- Loading indicator -->
+    <div id="loading" class="hidden text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p class="mt-2 text-gray-600">Chargement des livres...</p>
+    </div>
+
+    <!-- Aucun résultat -->
+    <div id="no-results" class="hidden text-center py-12">
+        <div class="inline-flex items-center justify-center w-16 h-16 mb-4 text-gray-400 bg-gray-100 rounded-full">
+            <i class="w-8 h-8" data-lucide="search-x"></i>
+        </div>
+        <h3 class="text-lg font-semibold ">Aucun livre trouvé</h3>
+        <p class="text-gray-600">Essayez de modifier vos critères de recherche</p>
+        <button onclick="clearAllFilters()" class="px-4 py-2 mt-4 text-sm text-white bg-primary rounded-md hover:bg-primary-dark">
+            Effacer tous les filtres
+        </button>
     </div>
 </div>
 
-<!-- Grille des livres principale -->
-<div id="books-container">
-    <!-- Vue grille -->
-    <div id="books-grid" class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        <!-- Les livres seront chargés dynamiquement par JavaScript -->
+<!-- Modal pour les détails du livre -->
+<div id="book-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Overlay -->
+        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onclick="closeModal()"></div>
+
+        <!-- Contenu du modal -->
+        <div class="inline-block w-full max-w-4xl my-8 overflow-hidden text-left align-middle transition-all transform bg-white rounded-md shadow-xl">
+            <!-- En-tête du modal -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-xl font-bold text-gray-900" id="modal-title">Détails du livre</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+                    <i class="w-6 h-6" data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <!-- Corps du modal -->
+            <div class="p-6">
+                <div id="modal-content" class="space-y-4">
+                    <!-- Le contenu sera chargé dynamiquement -->
+                    <div class="text-center py-8">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        <p class="mt-2 text-gray-600">Chargement des détails...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pied du modal -->
+            <div class="flex justify-end gap-3 p-6 border-t border-gray-200">
+                <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    Fermer
+                </button>
+            </div>
+        </div>
     </div>
-
-    <!-- Vue liste (cachée par défaut) -->
-    <div id="books-list" class="hidden mb-8 space-y-4">
-        <!-- Les livres en liste seront chargés dynamiquement -->
-    </div>
-</div>
-
-<!-- Pagination -->
-<div id="pagination" class="flex justify-center mt-8"></div>
-
-<!-- Loading indicator -->
-<div id="loading" class="hidden text-center">
-    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    <p class="mt-2 text-gray-600">Chargement des livres...</p>
-</div>
-
-<!-- Aucun résultat -->
-<div id="no-results" class="hidden text-center">
-    <i class="text-4xl text-gray-400 fas fa-search"></i>
-    <h3 class="mt-4 text-lg font-semibold ">Aucun livre trouvé</h3>
-    <p class="text-gray-600">Essayez de modifier vos critères de recherche</p>
-</div>
-
 </div>
 {% endblock %}
 
@@ -188,26 +224,46 @@
 <script>
 // Variables globales
 let currentPage = 1;
-let currentView = 'list';
 let currentFilters = {};
+
+// Fonction pour ajouter/retirer des favoris
+// Fonction pour ajouter/retirer des favoris
+function toggleFavorite(event, bookId) {
+    event.stopPropagation();
+    
+    fetch(`/favorites/toggle/${bookId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Recharger la page pour mettre à jour toutes les données (compteurs, listes, états)
+            // C'est la méthode la plus sûre pour garantir la cohérence demandée
+            window.location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+window.toggleFavorite = toggleFavorite;
 
 // Fonction pour charger les livres
 function loadBooks(page = 1) {
     currentPage = page;
     
-    // Afficher le loading
     document.getElementById('loading').classList.remove('hidden');
-    document.getElementById('books-grid').classList.add('hidden');
-    document.getElementById('books-list').classList.add('hidden');
+    document.getElementById('books-list').innerHTML = '';
     document.getElementById('no-results').classList.add('hidden');
     
-    // Construire l'URL avec les filtres
     const params = new URLSearchParams({
         page: page,
         per_page: 12
     });
     
-    // Récupérer les valeurs des filtres
     const search = document.getElementById('search-input').value;
     const category = document.getElementById('category-filter').value;
     const format = document.getElementById('format-filter').value;
@@ -217,7 +273,6 @@ function loadBooks(page = 1) {
     if (category) params.set('category', category);
     if (sort) params.set('sort', sort);
     
-    // Filtre de format (physique/numérique)
     if (format === 'physical') {
         params.set('format', 'physical');
     } else if (format === 'digital') {
@@ -229,7 +284,6 @@ function loadBooks(page = 1) {
         .then(data => {
             document.getElementById('loading').classList.add('hidden');
             
-            // Mettre à jour les compteurs
             document.getElementById('total-books').textContent = data.total;
             document.getElementById('available-books').querySelector('span').textContent = data.available;
             
@@ -239,126 +293,31 @@ function loadBooks(page = 1) {
                 return;
             }
             
-            // Afficher les livres selon la vue actuelle
-            if (currentView === 'grid') {
-                renderGridBooks(data.books);
-                document.getElementById('books-grid').classList.remove('hidden');
-            } else {
-                renderListBooks(data.books);
-                document.getElementById('books-list').classList.remove('hidden');
-            }
-            
-            // Mettre à jour la pagination
+            renderListBooks(data.books);
             renderPagination(data);
             
-            // Mettre à jour les filtres actifs
             updateActiveFilters({
                 search: search !== '',
                 category: category !== '',
-                status: status !== '',
-                format: format !== ''
+                format: format !== '',
+                sort: sort !== 'title'
             });
+
+            // Initialize icons after rendering
+            if (typeof lucide !== 'undefined') {
+                setTimeout(() => lucide.createIcons(), 100);
+            }
         })
         .catch(error => {
             console.error('Error loading books:', error);
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('no-results').classList.remove('hidden');
+            
+            // Initialize icons for no-results view
+            if (typeof lucide !== 'undefined') {
+                setTimeout(() => lucide.createIcons(), 100);
+            }
         });
-}
-
-// Fonction pour afficher les livres en grille (design différent des livres populaires)
-function renderGridBooks(books) {
-    const grid = document.getElementById('books-grid');
-    grid.innerHTML = '';
-    
-    books.forEach(book => {
-        const bookElement = createBookCard(book);
-        grid.appendChild(bookElement);
-    });
-}
-
-// Fonction pour créer une carte de livre standard (design différent des populaires)
-function createBookCard(book) {
-    const div = document.createElement('div');
-    div.className = 'overflow-hidden transition-all duration-300 border border-gray-200 rounded-lg bg-card hover:shadow-lg hover:-translate-y-1';
-    
-    // Déterminer si c'est un livre numérique
-    const isDigital = book.file_url && book.file_url !== null && book.file_url !== '';
-    const bgClass = isDigital ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-gradient-to-r from-blue-50 to-sky-50';
-    const iconClass = isDigital ? 'fas fa-file-pdf text-green-500' : 'fas fa-book text-primary';
-    
-    // Badge de statut
-    let statusBadge = '';
-    if (book.status === 'available') {
-        statusBadge = '<span class="px-2 py-1 text-xs text-green-700 bg-green-50 border border-green-200 rounded">Disponible</span>';
-    } else if (book.status === 'borrowed') {
-        statusBadge = '<span class="px-2 py-1 text-xs text-red-700 bg-red-50 border border-red-200 rounded">Emprunté</span>';
-    } else if (book.status === 'reserved') {
-        statusBadge = '<span class="px-2 py-1 text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 rounded">Réservé</span>';
-    }
-    
-    // Déterminer le type de fichier
-    let fileType = 'PDF';
-    if (isDigital && book.file_url) {
-        const url = book.file_url.toLowerCase();
-        if (url.includes('.epub')) fileType = 'EPUB';
-        else if (url.includes('.mobi')) fileType = 'MOBI';
-        else if (url.includes('.pdf')) fileType = 'PDF';
-    }
-    
-    // Badge de type
-    const typeBadge = isDigital ? 
-        `<span class="px-2 py-1 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded">${fileType}</span>` :
-        '<span class="px-2 py-1 text-xs  bg-gray-50 border border-gray-200 rounded">Physique</span>';
-    
-    // Actions conditionnelles
-    let actions = '';
-    if (isDigital) {
-        actions = `
-            <div class="flex gap-2 mt-3">
-                <a href="/books/${book.id}/read/" target="_blank" 
-                   class="flex-1 px-3 py-2 text-xs text-center text-white bg-green-500 rounded hover:bg-green-600 transition-colors duration-200">
-                   <i class="fas fa-eye mr-1"></i>Lire
-                </a>
-                <a href="/books/${book.id}/download/" 
-                   class="flex-1 px-3 py-2 text-xs text-center text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors duration-200">
-                   <i class="fas fa-download mr-1"></i>Télé.
-                </a>
-            </div>
-        `;
-    } else {
-        // Pour les livres physiques, afficher uniquement les exemplaires disponibles
-        const availableCopies = book.available_copies || 0;
-        const totalCopies = book.total_copies || 0;
-        actions = `
-            <div class="mt-3 text-xs text-gray-600 text-center bg-gray-50 py-2 rounded border">
-                <i class="fas fa-copy mr-1"></i>
-                ${availableCopies}/${totalCopies} exemplaires
-            </div>
-        `;
-    }
-    
-    // Récupérer le nom de l'auteur
-    const authorName = book.authors && book.authors.length > 0 ? 
-        `${book.authors[0].name}` : 
-        'Auteur inconnu';
-    
-    div.innerHTML = `
-        <div class="flex items-center justify-center h-40 ${bgClass}">
-            <i class="text-4xl ${iconClass}"></i>
-        </div>
-        <div class="p-3">
-            <h4 class="mb-1 text-sm font-semibold line-clamp-2 " title="${book.title}">${book.title}</h4>
-            <p class="mb-2 text-xs text-gray-600">${authorName}</p>
-            <div class="flex items-center justify-between mb-2">
-                ${statusBadge}
-                ${typeBadge}
-            </div>
-            ${actions}
-        </div>
-    `;
-    
-    return div;
 }
 
 // Fonction pour afficher les livres en liste
@@ -366,100 +325,365 @@ function renderListBooks(books) {
     const list = document.getElementById('books-list');
     list.innerHTML = '';
     
-    books.forEach(book => {
-        const bookElement = createBookListItem(book);
+    books.forEach((book, index) => {
+        const bookElement = createBookListItem(book, index);
         list.appendChild(bookElement);
     });
 }
 
 // Fonction pour créer un élément de liste de livre
-function createBookListItem(book) {
+function createBookListItem(book, index) {
     const div = document.createElement('div');
-    div.className = 'flex items-center p-4 border border-gray-200 rounded-lg bg-card hover:shadow-md transition-all duration-200';
+    div.className = 'group flex flex-col h-full bg-white border border-gray-200 rounded-md overflow-hidden hover:border-primary transition-all duration-300 shadow-sm hover:shadow-md';
     
-    // Déterminer si c'est un livre numérique
     const isDigital = book.file_url && book.file_url !== null && book.file_url !== '';
-    const iconClass = isDigital ? 'fas fa-file-pdf text-green-500' : 'fas fa-book text-primary';
+    const isFavorite = book.is_favorite || false;
     
-    // Déterminer le type de fichier
-    let fileType = 'PDF';
-    if (isDigital && book.file_url) {
-        const url = book.file_url.toLowerCase();
-        if (url.includes('.epub')) fileType = 'EPUB';
-        else if (url.includes('.mobi')) fileType = 'MOBI';
-        else if (url.includes('.pdf')) fileType = 'PDF';
-    }
+    // Generate a consistent random-looking color based on book ID
+    const colors = [
+        'from-blue-100 to-indigo-100', 
+        'from-green-100 to-emerald-100',
+        'from-yellow-100 to-orange-100',
+        'from-purple-100 to-pink-100',
+        'from-red-100 to-rose-100',
+        'from-gray-100 to-slate-200'
+    ];
+    const colorClass = colors[book.id % colors.length];
     
-    // Actions disponibles - N'afficher les boutons QUE pour les livres numériques
-    let actions = '';
-    if (isDigital) {
-        actions = `
-            <div class="flex gap-2">
-                <a href="/books/${book.id}/read/" target="_blank" 
-                   class="px-3 py-2 text-xs text-white bg-green-500 rounded hover:bg-green-600 transition-colors duration-200">
-                   <i class="fas fa-eye mr-1"></i>Lire
-                </a>
-                <a href="/books/${book.id}/download/" 
-                   class="px-3 py-2 text-xs text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors duration-200">
-                   <i class="fas fa-download mr-1"></i>Télécharger
-                </a>
+    const authorsText = book.authors && book.authors.length > 0 ? 
+        book.authors.map(a => a.name).join(', ') : 'Auteur inconnu';
+
+    let coverContent = '';
+    if (book.cover_image) {
+        // Design avec image de couverture réelle + Texte en superposition
+        coverContent = `
+            <div class="relative w-full h-full">
+                <img src="${book.cover_image}" alt="${book.title}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'flex items-center justify-center w-full h-full bg-gray-100 text-gray-400\\'><i data-lucide=\\'image-off\\'></i></div>'; lucide.createIcons();">
+                
+                <!-- Overlay gradient sombre pour lisibilité du texte -->
+                <div class="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-10"></div>
+                
+                <!-- Titre et Auteur sur l'image -->
+                <div class="absolute bottom-0 inset-x-0 p-3 z-10 text-left">
+                     <h3 class="font-bold text-white text-md leading-tight line-clamp-2 mb-1" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
+                        ${book.title}
+                    </h3>
+                    <p class="text-xs font-medium text-gray-300 truncate" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8);">
+                        ${authorsText}
+                    </p>
+                </div>
+
+                <!-- Spine effect overlay -->
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-black/10 z-10"></div>
+                <!-- Shine effect -->
+                <div class="absolute inset-0 bg-gradient-to-tr from-black/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
             </div>
         `;
     } else {
-        // Pour les livres physiques, afficher uniquement les exemplaires disponibles
-        const availableCopies = book.available_copies || 0;
-        const totalCopies = book.total_copies || 0;
-        actions = `
-            <div class="text-xs text-gray-600 bg-gray-50 px-3 py-2 rounded border">
-                <i class="fas fa-copy mr-1"></i>
-                ${availableCopies}/${totalCopies} dispo.
+        // Fallback: Design généré avec dégradé (Titre et Auteur déjà présents)
+        coverContent = `
+            <div class="absolute inset-0 bg-gradient-to-br ${colorClass} p-4 flex flex-col justify-between text-center transition-transform duration-300 group-hover:scale-[1.02]">
+                <!-- Spine effect -->
+                <div class="absolute left-2 top-0 bottom-0 w-1 bg-black/5 rounded-l-sm"></div>
+                
+                <div class="mt-4 z-10 relative">
+                     <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                        <i class="w-16 h-16" data-lucide="${isDigital ? 'monitor' : 'book'}"></i>
+                    </div>
+                    <h3 class="font-serif font-bold text-gray-800 text-lg leading-tight line-clamp-3 relative z-10" style="text-shadow: 0 1px 0 rgba(255,255,255,0.5);">
+                        ${book.title}
+                    </h3>
+                    <p class="mt-2 text-xs font-medium text-gray-600 uppercase tracking-widest line-clamp-1 relative z-10">
+                        ${authorsText}
+                    </p>
+                </div>
+                
+                <div class="mb-4 z-10">
+                    ${book.publisher && book.publisher.name ? 
+                        `<span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">${book.publisher.name}</span>` : ''}
+                </div>
             </div>
         `;
     }
     
-    // Auteurs
-    const authorsText = book.authors && book.authors.length > 0 ? 
-        book.authors.map(a => `${a.name}`).join(', ') : 
-        'Auteur inconnu';
+    // Style du bouton favori
+    const favBtnClass = isFavorite 
+        ? 'text-red-500 bg-red-50 border-red-200 hover:bg-red-100' 
+        : 'text-gray-500 bg-gray-50 border-gray-200 hover:text-red-500 hover:bg-red-50 hover:border-red-200';
     
-    // Catégories
-    const categoriesHtml = book.categories && book.categories.length > 0 ? 
-        book.categories.map(c => `<span class="px-2 py-1 text-xs text-gray-600 bg-gray-100 rounded border">${c.name}</span>`).join('') : 
-        '';
+    const favIconFill = isFavorite ? 'fill="currentColor"' : '';
     
+    // Badge catégorie
+    const categoryBadge = (book.categories && book.categories.length > 0) 
+        ? `<div class="absolute top-2 left-2 z-20">
+             <span class="px-2 py-1 text-[10px] font-bold text-white bg-black/40 backdrop-blur-md border border-white/10 rounded-md shadow-sm truncate max-w-[120px] inline-block">
+                ${book.categories[0].name}
+             </span>
+           </div>`
+        : '';
+
     div.innerHTML = `
-        <div class="flex flex-col gap-2">
-	<div class="flex items-center justify-center w-16 h-16 mr-4 bg-gray-50 rounded-lg border">
-            <i class="text-2xl ${iconClass}"></i>
-        </div>
-        <div class="flex-1">
-            <h4 class="font-semibold ">${book.title}</h4>
-            <p class="text-sm text-gray-600">${authorsText}</p>
-            <div class="flex gap-2 mt-1">
-                ${categoriesHtml}
+        <!-- Zone Cover (Aspect ratio 2:3) -->
+        <div class="relative aspect-[2/3] w-full bg-gray-100 flex flex-col justify-between text-center transition-transform duration-300 group-hover:scale-[1.02] overflow-hidden">
+            ${coverContent}
+            
+            ${categoryBadge}
+            
+            <!-- Type badge -->
+            <div class="absolute top-2 right-2 z-20">
+                 ${isDigital 
+                    ? '<span class="px-2 py-1 text-[10px] font-bold text-blue-700 bg-blue-100/90 backdrop-blur-sm rounded-md shadow-sm">PDF</span>'
+                    : '<span class="px-2 py-1 text-[10px] font-bold text-gray-700 bg-white/90 backdrop-blur-sm rounded-md shadow-sm">Physique</span>'
+                 }
+            </div>
+
+            <!-- Overlay actions on hover -->
+            <div class="absolute inset-0 bg-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-3 p-4 z-30 backdrop-blur-sm">
+                <button onclick="showBookDetails('${book.id}')" 
+                        class="px-4 py-2 bg-white border border-gray-200 text-gray-900 rounded-md text-xs font-bold hover:bg-primary hover:text-white hover:border-primary transition-colors w-full shadow-sm">
+                    <i class="inline-block w-4 h-4 mr-1 align-middle" data-lucide="info"></i> Détails
+                </button>
+                
+                ${isDigital ? `
+                    <a href="/books/${book.id}/read/" target="_blank" 
+                       class="px-4 py-2 bg-green-600 text-white rounded-md text-xs font-bold hover:bg-green-700 transition-colors w-full flex items-center justify-center shadow-sm">
+                       <i class="w-4 h-4 mr-1" data-lucide="eye"></i> Lire
+                    </a>
+                ` : ''}
             </div>
         </div>
-        <div class="flex items">
-            <div class="text-left">
-                <span class="px-2 py-1 text-xs rounded border ${
-                    book.status === 'available' ? 'text-green-700 bg-green-50 border-green-200' :
-                    book.status === 'borrowed' ? 'text-red-700 bg-red-50 border-red-200' :
-                    'text-yellow-700 bg-yellow-50 border-yellow-200'
-                }">
-                    ${book.status === 'available' ? 'Disponible' : 
-                      book.status === 'borrowed' ? 'Emprunté' : 'Réservé'}
-                </span>
-                <div class="mt-1 text-xs text-gray-800 gap-2">
-                    ${isDigital ? fileType : 'Physique'} ${actions}
+
+        <!-- Info footer -->
+        <div class="p-3 border-t border-gray-100 bg-white flex flex-col gap-2 flex-grow justify-between">
+             <!-- Titre retiré du footer -->
+             
+             <div>
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-medium text-gray-500 flex items-center gap-1">
+                        <i class="w-3 h-3" data-lucide="calendar"></i>
+                        ${book.publication_year || '-'}
+                    </span>
+                    
+                    ${book.status === 'available' ? 
+                        `<span class="px-2 py-0.5 text-[10px] font-bold text-green-700 bg-green-50 border border-green-100 rounded-full flex items-center"><i class="w-2.5 h-2.5 mr-1" data-lucide="check-circle"></i>Dispo</span>` : 
+                        `<span class="px-2 py-0.5 text-[10px] font-bold text-red-700 bg-red-50 border border-red-100 rounded-full flex items-center"><i class="w-2.5 h-2.5 mr-1" data-lucide="x-circle"></i>Emprunté</span>`
+                    }
                 </div>
             </div>
-             
+            
+            <!-- Bouton Favori en bas -->
+            <button onclick="toggleFavorite(event, '${book.id}')" 
+                    class="w-full flex items-center justify-center gap-2 px-3 py-1.5 mt-1 text-xs font-semibold border rounded-md transition-all duration-200 ${favBtnClass}"
+                    data-book-id="${book.id}">
+                <i class="w-3.5 h-3.5" data-lucide="heart" ${favIconFill}></i>
+                ${isFavorite ? 'Favori' : 'Ajouter aux favoris'}
+            </button>
         </div>
-	</div>
     `;
     
     return div;
 }
+
+// Fonction pour afficher le modal avec les détails du livre
+// Fonction pour afficher le modal avec les détails du livre
+function showBookDetails(bookId) {
+    const modal = document.getElementById('book-modal');
+    const modalContent = document.getElementById('modal-content');
+    const modalTitle = document.getElementById('modal-title');
+   
+    
+    // Afficher le modal avec loading
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    
+    modalContent.innerHTML = `
+        <div class="text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p class="mt-2 text-gray-600">Chargement des détails...</p>
+        </div>
+    `;
+    
+    // Charger les détails du livre
+    fetch(`/api/books/${bookId}/`)
+        .then(response => response.json())
+        .then(book => {
+            const isDigital = book.file_url && book.file_url !== null && book.file_url !== '';
+            
+            let fileType = 'PDF';
+            if (isDigital && book.file_url) {
+                const url = book.file_url.toLowerCase();
+                if (url.includes('.epub')) fileType = 'EPUB';
+                else if (url.includes('.mobi')) fileType = 'MOBI';
+            }
+            
+            let statusText = '';
+            let statusColor = '';
+            if (book.status === 'available') {
+                statusText = 'Disponible';
+                statusColor = 'text-green-700 bg-green-50 border-green-200';
+            } else if (book.status === 'borrowed') {
+                statusText = 'Emprunté';
+                statusColor = 'text-red-700 bg-red-50 border-red-200';
+            } else {
+                statusText = 'Réservé';
+                statusColor = 'text-yellow-700 bg-yellow-50 border-yellow-200';
+            }
+            
+            const authorsHtml = book.authors && book.authors.length > 0 ? 
+                book.authors.map(a => 
+                    `<span class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-md">${a.name}</span>`
+                ).join('') : 
+                '<span class="text-gray-500">Auteur inconnu</span>';
+            
+            const categoriesHtml = book.categories && book.categories.length > 0 ? 
+                book.categories.map(c => 
+                    `<span class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-md">${c.name}</span>`
+                ).join('') : 
+                '<span class="text-gray-500">Non catégorisé</span>';
+            
+            // Mettre à jour le titre du modal
+            modalTitle.textContent = book.title;
+            
+            // Contenu du modal
+            modalContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Colonne de gauche - Informations principales -->
+                    <div class="md:col-span-2 space-y-4">
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-900 mb-2">${book.title}</h4>
+                            <p class="text-gray-600">${book.description || 'Aucune description disponible.'}</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-1">Auteur(s)</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    ${authorsHtml}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-1">Éditeur</h5>
+                                <p class="text-gray-600">${book.publisher && book.publisher.name ? book.publisher.name : 'Non spécifié'}</p>
+                            </div>
+                            
+                            <div>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-1">Catégories</h5>
+                                <div class="flex flex-wrap gap-2">
+                                    ${categoriesHtml}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-1">Langue</h5>
+                                <p class="text-gray-600">${book.language || 'Non spécifiée'}</p>
+                            </div>
+                            
+                            <div>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-1">ISBN</h5>
+                                <p class="text-gray-600">${book.isbn || 'Non disponible'}</p>
+                            </div>
+                            
+                            <div>
+                                <h5 class="text-sm font-semibold text-gray-700 mb-1">Pages</h5>
+                                <p class="text-gray-600">${book.pages || 'Non spécifié'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Colonne de droite - Métadonnées et actions -->
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 border border-gray-200 rounded-md p-4">
+                            <h5 class="text-sm font-semibold text-gray-700 mb-3">Informations</h5>
+                            
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Format:</span>
+                                    <span class="text-sm font-medium">
+                                        ${isDigital ? fileType : 'Physique'}
+                                    </span>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Statut:</span>
+                                    <span class="px-2 py-1 text-xs rounded-md border ${statusColor}">
+                                        ${statusText}
+                                    </span>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Année:</span>
+                                    <span class="text-sm font-medium">${book.publication_year || 'N/A'}</span>
+                                </div>
+                                
+                                ${!isDigital ? `
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-600">Exemplaires:</span>
+                                        <span class="text-sm font-medium">
+                                            ${book.available_copies || 0}/${book.total_copies || 0}
+                                        </span>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Date d'ajout:</span>
+                                    <span class="text-sm font-medium">${new Date(book.created_at).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div id="modal-buttons" class="space-y-2">
+                            ${isDigital ? `
+                                <a href="/books/${book.id}/read/" target="_blank" 
+                                   class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors duration-200">
+                                   <i class="w-4 h-4 mr-2" data-lucide="eye"></i> Lire en ligne
+                                </a>
+                                <a href="/books/${book.id}/download/" 
+                                   class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                                   <i class="w-4 h-4 mr-2" data-lucide="download"></i> Télécharger
+                                </a>
+                            ` : `
+                                <div class="text-center p-3 bg-gray-50 border border-gray-200 rounded-md">
+                                    <p class="text-sm text-gray-600">Livre physique - disponible au prêt</p>
+                                    <p class="text-xs text-gray-500 mt-1">${book.available_copies || 0} exemplaire(s) disponible(s)</p>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+           
+        })
+        .catch(error => {
+            console.error('Error loading book details:', error);
+            modalContent.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="w-10 h-10 text-red-500 mb-4 mx-auto" data-lucide="alert-circle"></i>
+                    <h4 class="text-lg font-semibold text-gray-900">Erreur</h4>
+                    <p class="text-gray-600">Impossible de charger les détails du livre.</p>
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') {
+                setTimeout(() => lucide.createIcons(), 100);
+            }
+        });
+}
+
+// Fonction pour fermer le modal
+function closeModal() {
+    const modal = document.getElementById('book-modal');
+    modal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+}
+
+// Fermer le modal avec la touche Échap
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+});
 
 // Fonction pour mettre à jour la pagination
 function renderPagination(data) {
@@ -472,33 +696,49 @@ function renderPagination(data) {
     
     let html = '';
     
-    // Bouton précédent
     if (data.has_prev) {
-        html += `<button onclick="loadBooks(${data.current_page - 1})" 
-                 class="px-3 py-2 mx-1 text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200">
-                 <i class="fas fa-chevron-left"></i>
-                 </button>`;
+        html += `
+            <button onclick="loadBooks(${data.current_page - 1})" 
+                    class="flex items-center justify-center w-10 h-10 mx-1 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-primary/50 hover:text-primary transition-all duration-200">
+                <i class="w-4 h-4" data-lucide="chevron-left"></i>
+            </button>
+        `;
     }
     
-    // Pages
     for (let i = 1; i <= data.pages; i++) {
         if (i === data.current_page) {
-            html += `<span class="px-3 py-2 mx-1 text-white bg-primary border border-primary rounded">${i}</span>`;
+            html += `
+                <span class="flex items-center justify-center w-10 h-10 mx-1 text-white bg-primary border border-primary rounded-md">
+                    ${i}
+                </span>
+            `;
         } else {
-            html += `<button onclick="loadBooks(${i})" 
-                     class="px-3 py-2 mx-1 text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200">
-                     ${i}
-                     </button>`;
+            html += `
+                <button onclick="loadBooks(${i})" 
+                        class="flex items-center justify-center w-10 h-10 mx-1 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-primary/50 hover:text-primary transition-all duration-200">
+                    ${i}
+                </button>
+            `;
         }
     }
     
-    // Bouton suivant
     if (data.has_next) {
-        html += `<button onclick="loadBooks(${data.current_page + 1})" 
-                 class="px-3 py-2 mx-1 text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors duration-200">
-                 <i class="fas fa-chevron-right"></i>
-                 </button>`;
+        html += `
+            <button onclick="loadBooks(${data.current_page + 1})" 
+                    class="flex items-center justify-center w-10 h-10 mx-1 text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:border-primary/50 hover:text-primary transition-all duration-200">
+                <i class="w-4 h-4" data-lucide="chevron-right"></i>
+            </button>
+        `;
     }
+    
+    const startItem = ((data.current_page - 1) * 12) + 1;
+    const endItem = Math.min(data.current_page * 12, data.total);
+    
+    html += `
+        <div class="flex items-center ml-4 text-sm text-gray-600">
+            <span>${startItem}-${endItem} sur ${data.total} livres</span>
+        </div>
+    `;
     
     pagination.innerHTML = html;
 }
@@ -508,39 +748,65 @@ function updateActiveFilters(filters) {
     const activeFilters = document.getElementById('active-filters');
     activeFilters.innerHTML = '';
     
+    let hasActiveFilters = false;
+    
     Object.entries(filters).forEach(([key, isActive]) => {
         if (isActive) {
+            hasActiveFilters = true;
             let filterText = '';
+            let icon = '';
+            
             switch (key) {
                 case 'search':
-                    filterText = `Recherche: "${document.getElementById('search-input').value}"`;
+                    const searchValue = document.getElementById('search-input').value;
+                    filterText = `"${searchValue}"`;
+                    icon = 'search';
                     break;
                 case 'category':
                     const categorySelect = document.getElementById('category-filter');
-                    filterText = `Catégorie: ${categorySelect.options[categorySelect.selectedIndex].text}`;
+                    filterText = categorySelect.options[categorySelect.selectedIndex].text;
+                    icon = 'folder';
                     break;
                 case 'format':
                     const formatSelect = document.getElementById('format-filter');
-                    filterText = `Format: ${formatSelect.options[formatSelect.selectedIndex].text}`;
+                    filterText = formatSelect.options[formatSelect.selectedIndex].text;
+                    icon = formatSelect.value === 'digital' ? 'monitor' : 'book';
+                    break;
+                case 'sort':
+                    const sortSelect = document.getElementById('sort-select');
+                    filterText = sortSelect.options[sortSelect.selectedIndex].text.replace('Trier par: ', '');
+                    icon = 'arrow-up-down';
                     break;
             }
             
-            if (filterText) {
+                if (filterText) {
                 const badge = document.createElement('span');
-                badge.className = 'inline-flex items-center px-3 py-1 text-xs bg-primary text-white rounded-full';
+                badge.className = 'inline-flex items-center px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-700 rounded-md border border-gray-200 hover:border-gray-300 transition-colors duration-200';
                 badge.innerHTML = `
+                    <i class="w-3 h-3 mr-1.5" data-lucide="${icon}"></i>
                     ${filterText}
-                    <button type="button" class="ml-2 text-white hover:text-gray-200" onclick="clearFilter('${key}')">
-                        <i class="fas fa-times"></i>
+                    <button type="button" class="ml-2 text-gray-500 hover:text-gray-700" onclick="clearFilter('${key}')">
+                        <i class="w-3 h-3" data-lucide="x"></i>
                     </button>
                 `;
                 activeFilters.appendChild(badge);
             }
         }
     });
+    
+    if (hasActiveFilters) {
+        const clearAllBtn = document.createElement('button');
+        clearAllBtn.className = 'inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-md border border-gray-200 hover:bg-gray-200 hover:text-gray-800 transition-colors duration-200';
+        clearAllBtn.innerHTML = `
+            <i class="w-3 h-3 mr-1.5" data-lucide="x-circle"></i>
+            Effacer tous
+        `;
+        clearAllBtn.onclick = clearAllFilters;
+        activeFilters.appendChild(clearAllBtn);
+    }
 }
 
-// Fonction pour effacer un filtre
+// Fonction pour effacer un filtre spécifique
 function clearFilter(filterType) {
     switch (filterType) {
         case 'search':
@@ -552,54 +818,53 @@ function clearFilter(filterType) {
         case 'format':
             document.getElementById('format-filter').value = '';
             break;
+        case 'sort':
+            document.getElementById('sort-select').value = 'title';
+            break;
     }
+    loadBooks(1);
+}
+
+// Fonction pour effacer tous les filtres
+function clearAllFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('category-filter').value = '';
+    document.getElementById('format-filter').value = '';
+    document.getElementById('sort-select').value = 'title';
     loadBooks(1);
 }
 
 // Événements
 document.addEventListener('DOMContentLoaded', function() {
-    // Charger les livres au démarrage
     loadBooks();
     
-    // Bouton de recherche
     document.getElementById('search-btn').addEventListener('click', () => loadBooks(1));
     
-    // Recherche avec touche Entrée
     document.getElementById('search-input').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             loadBooks(1);
         }
     });
     
-    // Filtres
+    let searchTimeout;
+    document.getElementById('search-input').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            loadBooks(1);
+        }, 500);
+    });
+    
     document.getElementById('category-filter').addEventListener('change', () => loadBooks(1));
     document.getElementById('format-filter').addEventListener('change', () => loadBooks(1));
     document.getElementById('sort-select').addEventListener('change', () => loadBooks(1));
-    
-    // Boutons de vue
-    document.querySelector('.grid-view-btn').addEventListener('click', function() {
-        currentView = 'grid';
-        document.querySelector('.grid-view-btn').classList.add('bg-white', 'shadow-sm', 'text-primary');
-        document.querySelector('.list-view-btn').classList.remove('bg-white', 'shadow-sm', 'text-primary');
-        document.querySelector('.list-view-btn').classList.add('text-gray-800');
-        document.getElementById('books-grid').classList.remove('hidden');
-        document.getElementById('books-list').classList.add('hidden');
-        loadBooks(currentPage);
-    });
-    
-    document.querySelector('.list-view-btn').addEventListener('click', function() {
-        currentView = 'list';
-        document.querySelector('.list-view-btn').classList.add('bg-white', 'shadow-sm', 'text-primary');
-        document.querySelector('.grid-view-btn').classList.remove('bg-white', 'shadow-sm', 'text-primary');
-        document.querySelector('.grid-view-btn').classList.add('text-gray-800');
-        document.getElementById('books-list').classList.remove('hidden');
-        document.getElementById('books-grid').classList.add('hidden');
-        loadBooks(currentPage);
-    });
 });
 
 // Exposer les fonctions globalement
 window.loadBooks = loadBooks;
 window.clearFilter = clearFilter;
+window.clearAllFilters = clearAllFilters;
+window.showBookDetails = showBookDetails;
+window.closeModal = closeModal;
 </script>
 {% endblock %}
+

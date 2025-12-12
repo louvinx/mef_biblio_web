@@ -9,7 +9,7 @@
             <ul class="space-y-2">
                 {% for cat in categories %}
                 <li
-                    class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
+                    class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50">
                     <div class="flex-1">
                         <span class="text-sm font-medium ">{{ cat.category_name }}</span>
                         {% if cat.description %}
@@ -17,6 +17,7 @@
                         {% endif %}
                         <p class="text-xs text-gray-400">{{ cat.book_count }} livre(s)</p>
                     </div>
+                    {% if user.profile.is_admin %}
                     <div class="flex gap-2 ml-4">
                         <a href="{% url 'edit_category' cat.category_id %}"
                             class="px-2 py-1 text-xs text-primary transition-colors bg-blue-50 rounded hover:bg-blue-100">
@@ -33,6 +34,7 @@
                         </form>
                         {% endif %}
                     </div>
+                    {% endif %}
                 </li>
                 {% empty %}
                 <li class="p-3 text-sm text-center text-gray-800 bg-white border border-gray-200 rounded-lg">
@@ -41,15 +43,18 @@
                 {% endfor %}
             </ul>
         </div>
+        {% if user.profile.is_admin %}
         <a href="{% url 'add_category' %}"
             class="inline-block w-full px-4 py-2 mt-4 text-sm font-medium text-center text-white transition-colors bg-gray-800 rounded hover:bg-gray-700">
             + Nouvelle Catégorie
         </a>
+        {% endif %}
     </div>
 
     <!-- Formulaire Catégorie -->
+    {% if user.profile.is_admin %}
     <div class="flex-1 p-6">
-        <div class="max-w-2xl p-6 mx-auto bg-white rounded-lg shadow-sm">
+        <div class="max-w-2xl p-6 mx-auto bg-white rounded-md shadow-sm">
             <h2 class="mb-8 text-2xl font-bold text-center ">
                 {% if category %}Modifier la catégorie{% else %}Ajouter une catégorie{% endif %}
             </h2>
@@ -101,6 +106,13 @@
             </form>
         </div>
     </div>
+    {% else %}
+    <div class="flex-1 p-6 flex flex-col items-center justify-center text-gray-500 bg-gray-50/50">
+        <i class="w-12 h-12 mb-4 text-gray-300" data-lucide="lock"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Lecture seule</h3>
+        <p>Vous devez être administrateur pour ajouter ou modifier des catégories.</p>
+    </div>
+    {% endif %}
 </div>
 
 <script>
@@ -149,5 +161,11 @@
             });
         }
     });
+</script>
+</script>
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 </script>
 {% endblock %}

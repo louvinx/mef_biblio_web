@@ -17,35 +17,52 @@
                 <div class="relative inline-block flex-1 sm:flex-initial" id="export-menu-container">
                     <button id="export-toggle-button"
                         class="flex items-center justify-center w-full px-3 sm:px-4 py-2 text-sm sm:text-base text-white bg-green-600 rounded hover:bg-green-700 transition-all duration-200">
-                        <i class="mr-2 fas fa-file-export"></i>
+                        <i class="w-4 h-4 mr-2" data-lucide="share"></i>
                         <span id="export-text">Exporter</span>
-                        <i class="ml-2 fas fa-chevron-down transition-transform duration-200"></i>
+                        <i class="w-4 h-4 ml-2 transition-transform duration-200" data-lucide="chevron-down"></i>
                         {% if page_obj.paginator.count > 0 %}
                         <span class="export-badge">{{ page_obj.paginator.count }}</span>
                         {% endif %}
                     </button>
 
                     <!-- Menu déroulant amélioré -->
-                    <div id="export-dropdown" class="hidden absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-xl ring-1 ring-black ring-opacity-5">
+                    <div id="export-dropdown" class="hidden absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-md bg-white shadow-xl ring-1 ring-black ring-opacity-5">
                         <div class="py-1">
+                            <!-- Information sur le type d'export -->
+                            <div class="px-4 py-2 border-b border-gray-200 bg-blue-50">
+                                <p class="text-xs text-blue-800 flex items-center">
+                                    <i class="w-3 h-3 mr-1" data-lucide="info"></i>
+                                    Par défaut, seuls les livres physiques sont exportés
+                                </p>
+                            </div>
+
+                            <!-- Checkbox pour inclure les PDF -->
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" id="include-pdf-checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                                    <span class="ml-2 text-sm text-gray-700">Inclure aussi les livres numériques (PDF/EPUB)</span>
+                                </label>
+                            </div>
+
                             <!-- Options d'export -->
                             <a href="{% url 'export_books_excel' %}?{{ request.GET.urlencode }}"
-                                class="export-menu-item flex items-center px-4 py-3 text-sm  hover:bg-gray-50 transition-all export-link">
+                                class="export-menu-item flex items-center px-4 py-3 text-sm  hover:bg-gray-50 transition-all export-link"
+                                data-export-type="excel">
                                 <div
-                                    class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="icon-excel fas fa-file-excel"></i>
+                                    class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-md flex items-center justify-center mr-3">
+                                    <i class="icon-excel w-5 h-5" data-lucide="file-spreadsheet"></i>
                                 </div>
                                 <div class="flex-1">
                                     <p class="font-medium text-gray-900">Excel</p>
                                     <p class="text-xs text-gray-800">Format .xlsx</p>
                                 </div>
-                                <i class="fas fa-arrow-right text-gray-400 text-xs"></i>
+                                <i class="w-3 h-3 text-gray-400" data-lucide="arrow-right"></i>
                             </a>
 
                     <!--        <a href="{% url 'export_books_pdf' %}?{{ request.GET.urlencode }}"
                                 class="export-menu-item flex items-center px-4 py-3 text-sm  hover:bg-gray-50 transition-all export-link">
                                 <div
-                                    class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                                    class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-md flex items-center justify-center mr-3">
                                     <i class="icon-pdf fas fa-file-pdf"></i>
                                 </div>
                                 <div class="flex-1">
@@ -56,22 +73,23 @@
                             </a> -->
 
                             <a href="{% url 'export_books_word' %}?{{ request.GET.urlencode }}"
-                                class="export-menu-item flex items-center px-4 py-3 text-sm  hover:bg-gray-50 transition-all export-link">
+                                class="export-menu-item flex items-center px-4 py-3 text-sm  hover:bg-gray-50 transition-all export-link"
+                                data-export-type="word">
                                 <div
-                                    class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i class="icon-word fas fa-file-word"></i>
+                                    class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center mr-3">
+                                    <i class="icon-word w-5 h-5" data-lucide="file-text"></i>
                                 </div>
                                 <div class="flex-1">
                                     <p class="font-medium text-gray-900">Word</p>
                                     <p class="text-xs text-gray-800">Format .docx</p>
                                 </div>
-                                <i class="fas fa-arrow-right text-gray-400 text-xs"></i>
+                                <i class="w-3 h-3 text-gray-400" data-lucide="arrow-right"></i>
                             </a>
 
                             <!-- Footer du menu -->
                             <div class="px-4 py-2 border-t border-gray-200 bg-gray-50">
-                                <p class="text-xs text-gray-800">
-                                    <i class="fas fa-info-circle mr-1"></i>
+                                <p class="text-xs text-gray-800 flex items-center">
+                                    <i class="w-3 h-3 mr-1" data-lucide="filter"></i>
                                     Les filtres actifs seront appliqués
                                 </p>
                             </div>
@@ -79,18 +97,20 @@
                     </div>
                 </div>
 
+                {% if user.profile.is_admin %}
                 <a href="{% url 'add_book' %}"
                     class="flex items-center justify-center flex-1 sm:flex-initial px-3 sm:px-4 py-2 text-sm sm:text-base text-white bg-primary rounded hover:bg-primary/90">
-                    <i class="mr-2 fas fa-plus"></i>
+                    <i class="w-4 h-4 mr-2" data-lucide="plus-circle"></i>
                     <span class="hidden sm:inline">Ajouter un livre</span>
                     <span class="sm:hidden">Ajouter</span>
                 </a>
+                {% endif %}
             </div>
 
             <!-- Notification toast -->
-            <div id="export-toast" class="hidden fixed bottom-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50">
+            <div id="export-toast" class="hidden fixed bottom-4 right-4 bg-green-600 text-white p-4 rounded-md shadow-lg z-50">
                 <div class="flex items-center gap-3">
-                    <i class="fas fa-check-circle text-xl"></i>
+                    <i class="w-6 h-6" data-lucide="check-circle"></i>
                     <span id="toast-message" class="font-medium"></span>
                 </div>
             </div>
@@ -109,12 +129,12 @@
 
             <!-- Boutons -->
             <div class="flex items-end space-x-2">
-                <button type="submit" class="flex-1 px-3 sm:px-4 py-2 text-sm text-white bg-primary rounded hover:bg-primary/90">
-                    <i class="mr-1 sm:mr-2 fas fa-filter"></i><span class="hidden xs:inline">Filtrer</span><span class="xs:hidden">OK</span>
+                <button type="submit" class="flex-1 px-3 sm:px-4 py-2 text-sm text-white bg-primary rounded hover:bg-primary/90 flex items-center justify-center">
+                    <i class="w-4 h-4 mr-1 sm:mr-2" data-lucide="filter"></i><span class="hidden xs:inline">Filtrer</span><span class="xs:hidden">OK</span>
                 </button>
                 <a href="{% url 'book_list' %}"
-                    class="px-3 sm:px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300">
-                    <i class="fas fa-times"></i>
+                    class="px-3 sm:px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300 flex items-center justify-center">
+                    <i class="w-4 h-4" data-lucide="x"></i>
                 </a>
             </div>
         </form>
@@ -148,8 +168,10 @@
                             Statut</th>
                         <th class="px py-3 text-xs font-medium tracking-wider text-center text-gray-800 uppercase">
                             Exemplaires</th>
+                        {% if user.profile.is_admin %}
                         <th class="px py-3 text-xs font-medium tracking-wider text-center text-gray-800 uppercase">
                             Actions</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -158,8 +180,8 @@
                         <td class="px-6 py-4 whitespace-nowrap text-left border border-gray-200">
                             <div class="flex items-center">
                                 <div
-                                    class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <i class="text-primary fas fa-book"></i>
+                                    class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                                    <i class="text-primary w-5 h-5" data-lucide="book"></i>
                                 </div>
                                 <div class="ml-4">
     					<div class="text-sm font-medium text-gray-900 break-words whitespace-normal leading-tight">
@@ -174,78 +196,91 @@
 				</div>
                             </div>
                         </td>
-                        <td class="px-2 py-4 text-left border border-gray-200">
-                           
-                                	<div class="text-sm text-gray-900">
-    						{% if book.authors.all %}
-        					<ul class="list-disc list-inside space-y-1">
-            						{% for author in book.authors.all %}
-                				<li class="leading-tight">{{ author.name }}</li>
-            						{% endfor %}
-        						</ul>
-    							{% else %}
-       						 <span class="text-gray-400">Aucun auteur</span>
-    					{% endif %}
-				
+                        <td class="px-4 py-4 text-left border border-gray-200">
+                            <div class="text-sm text-gray-900">
+                                {% if book.authors.all %}
+                                    <div class="flex flex-col gap-1.5">
+                                        {% for author in book.authors.all %}
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></div>
+                                                <span class="leading-tight">{{ author.name }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-gray-400 italic">Aucun auteur</span>
+                                {% endif %}
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-center border border-gray-200">
-                            <div class="flex flex-wrap gap-1 text-center">
+                        <td class="px-4 py-4 text-center border border-gray-200">
+                            <div class="flex flex-wrap gap-1.5 justify-center">
                                 {% for category in book.categories.all %}
-                                <span
-                                    class="inline-flex px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                                <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-md">
+                                    <i class="w-3 h-3 mr-1" data-lucide="tag"></i>
                                     {{ category.category_name }}
                                 </span>
                                 {% empty %}
-                                <span class="text-gray-400 text-xs">Aucune catégorie</span>
+                                <span class="text-gray-400 text-xs italic">Aucune catégorie</span>
                                 {% endfor %}
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center border border-gray-200">
+                        <td class="px-4 py-4 whitespace-nowrap text-center border border-gray-200">
                             {% if book.status == 'available' %}
-                            <span
-                                class="inline-flex px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
+                            <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-green-800 bg-green-100 rounded-lg">
+                                <i class="w-3 h-3 mr-1.5" data-lucide="check-circle"></i>
                                 Disponible
                             </span>
                             {% elif book.status == 'borrowed' %}
-                            <span
-                                class="inline-flex px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded-full">
+                            <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-red-800 bg-red-100 rounded-lg">
+                                <i class="w-3 h-3 mr-1.5" data-lucide="book-open"></i>
                                 Emprunté
                             </span>
                             {% elif book.status == 'reserved' %}
-                            <span
-                                class="inline-flex px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">
+                            <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-lg">
+                                <i class="w-3 h-3 mr-1.5" data-lucide="clock"></i>
                                 Réservé
                             </span>
                             {% else %}
-                            <span
-                                class="inline-flex px-2 py-1 text-xs font-semibold  bg-gray-100 rounded-full">
+                            <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 rounded-lg">
+                                <i class="w-3 h-3 mr-1.5" data-lucide="wrench"></i>
                                 Maintenance
                             </span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center border border-gray-200">
-                            <div class="text-sm text-gray-900">
-                                <div>Total: {{ book.total_copies }}</div>
-                                <div class="text-green-600">Dispo: {{ book.available_copies }}</div>
+                        <td class="px-4 py-4 whitespace-nowrap text-center border border-gray-200">
+                            <div class="text-sm space-y-1">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <i class="w-3.5 h-3.5 text-gray-600" data-lucide="layers"></i>
+                                    <span class="font-medium text-gray-900">{{ book.total_copies }}</span>
+                                </div>
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <i class="w-3.5 h-3.5 text-green-600" data-lucide="check"></i>
+                                    <span class="text-green-600 font-medium">{{ book.available_copies }}</span>
+                                </div>
                             </div>
                         </td>
-                        <td class="px-6 py-1 whitespace-nowrap text-centertext-sm font-medium border border-gray-200">
-                            <div class="flex space-x-2 items-center justify-center text-center">
-                                <a href="{% url 'edit_book' book.book_id %}" class="text-white text-xs bg-blue-500 px-2 py-1 rounded-sm"
-                                    title="Modifier">
+                        {% if user.profile.is_admin %}
+                        <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium border border-gray-200">
+                            <div class="flex gap-2 items-center justify-center">
+                                <a href="{% url 'edit_book' book.book_id %}" 
+                                   class="inline-flex items-center gap-1.5 text-white text-xs bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-md transition-colors"
+                                   title="Modifier">
+                                    <i class="w-3.5 h-3.5" data-lucide="edit"></i>
                                     Modifier
                                 </a>
                                 <form method="post" action="{% url 'delete_book' book.book_id %}" class="inline">
                                     {% csrf_token %}
-                                    <button type="submit" class="text-white text-xs bg-red-500 px-2 py-1 rounded-sm"
-                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer « {{ book.title }} » ?')"
-                                        title="Supprimer">
+                                    <button type="submit" 
+                                            class="inline-flex items-center gap-1.5 text-white text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-md transition-colors"
+                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer « {{ book.title }} » ?')"
+                                            title="Supprimer">
+                                        <i class="w-3.5 h-3.5" data-lucide="trash-2"></i>
                                         Supprimer
                                     </button>
                                 </form>
                             </div>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -253,7 +288,7 @@
         </div>
         {% else %}
         <div class="p-8 text-center">
-            <i class="text-4xl text-gray-300 fas fa-book"></i>
+            <i class="w-12 h-12 text-gray-300 mx-auto mb-4" data-lucide="book"></i>
             <h3 class="mt-4 text-lg font-medium text-gray-900">Aucun livre trouvé</h3>
             <p class="mt-2 text-gray-800">
                 {% if search or selected_category or selected_status %}
@@ -262,11 +297,13 @@
                 Aucun livre n'a été ajouté à la bibliothèque pour le moment.
                 {% endif %}
             </p>
+            {% if user.profile.is_admin %}
             <a href="{% url 'add_book' %}"
                 class="inline-flex items-center px-4 py-2 mt-4 text-white bg-primary rounded hover:bg-primary/90">
-                <i class="mr-2 fas fa-plus"></i>
+                <i class="w-4 h-4 mr-2" data-lucide="plus-circle"></i>
                 Ajouter le premier livre
             </a>
+            {% endif %}
         </div>
         {% endif %}
 
@@ -318,7 +355,7 @@
         const exportLinks = document.querySelectorAll('.export-link');
         const exportToast = document.getElementById('export-toast');
         const toastMessage = document.getElementById('toast-message');
-        const chevronIcon = exportToggleButton.querySelector('.fa-chevron-down');
+        const chevronIcon = exportToggleButton.querySelector('[data-lucide="chevron-down"]');
 
         // Toggle du menu déroulant
         exportToggleButton.addEventListener('click', function (e) {
@@ -348,6 +385,22 @@
         // Gestion des clics sur les liens d'export
         exportLinks.forEach(link => {
             link.addEventListener('click', function (e) {
+                e.preventDefault(); // Empêcher le comportement par défaut
+                
+                // Récupérer l'URL de base
+                let url = this.getAttribute('href');
+                
+                // Vérifier si la checkbox est cochée
+                const includePdfCheckbox = document.getElementById('include-pdf-checkbox');
+                if (includePdfCheckbox && includePdfCheckbox.checked) {
+                    // Ajouter le paramètre include_pdf
+                    const separator = url.includes('?') ? '&' : '?';
+                    url += separator + 'include_pdf=1';
+                }
+                
+                // Rediriger vers l'URL modifiée
+                window.location.href = url;
+                
                 // Fermer le menu déroulant
                 exportDropdown.classList.add('hidden');
                 exportToggleButton.classList.remove('export-button-active');
@@ -472,4 +525,11 @@
     }
 </style>
 
+{% block extra_js %}
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
+{% endblock %}
 {% endblock %}

@@ -4,7 +4,7 @@ from django.http import JsonResponse, FileResponse, HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, Case, When, IntegerField, Value, F
+from django.db.models import Q, Count, Case, When, IntegerField, Value, F, Exists, OuterRef
 from django.db.models.functions import Concat
 from django.conf import settings
 from django.contrib import messages
@@ -15,6 +15,7 @@ import os
 import mimetypes
 from .models import Book, Author, Category, Publisher
 from .forms import BookForm, AuthorForm, CategoryForm, PublisherForm
+from .decorators import admin_required, ajax_admin_required
 # Ajoutez ces imports en haut de views.py
 from django.http import HttpResponse
 from datetime import datetime
@@ -201,7 +202,7 @@ def api_books(request):
     search = request.GET.get('search', '')
     category_id = request.GET.get('category', None)
     status = request.GET.getlist('status', [])
-    formats = request.GET.getlist('format', [])
+    format_type = request.GET.get('format', '')  # Changé pour gérer 'physical' ou 'digital'
     languages = request.GET.getlist('language', [])
     availability = request.GET.get('availability', None)
     sort_by = request.GET.get('sort', 'created_at')
@@ -226,11 +227,13 @@ def api_books(request):
     if status:
         books = books.filter(status__in=status)
     
-    if formats:
-        format_filters = Q()
-        for fmt in formats:
-            format_filters |= Q(file__endswith=f'.{fmt}')
-        books = books.filter(format_filters)
+    # Filtre de format corrigé pour gérer physical/digital
+    if format_type == 'digital':
+        # Livres numériques : ont un fichier
+        books = books.exclude(file='').exclude(file__isnull=True)
+    elif format_type == 'physical':
+        # Livres physiques : n'ont pas de fichier
+        books = books.filter(Q(file='') | Q(file__isnull=True))
     
     if languages:
         books = books.filter(language__in=languages)
@@ -264,6 +267,18 @@ def api_books(request):
     else:
         books = books.order_by(sort_field)
     
+    # Optimisation pour voir si le livre est favori pour l'utilisateur actuel
+    if request.user.is_authenticated:
+        from .models import Favorite
+        books = books.annotate(
+            is_favorite=Exists(
+                Favorite.objects.filter(
+                    user=request.user,
+                    book=OuterRef('pk')
+                )
+            )
+        )
+    
     paginator = Paginator(books, per_page)
     try:
         page_obj = paginator.page(page)
@@ -271,9 +286,17 @@ def api_books(request):
         page_obj = paginator.page(1)
     
     total_available = books.filter(available_copies__gt=0).count()
+
+    # Sérialisation manuelle pour inclure is_favorite
+    books_data = []
+    for book in page_obj:
+        data = book.to_dict()
+        if request.user.is_authenticated:
+            data['is_favorite'] = getattr(book, 'is_favorite', False)
+        books_data.append(data)
     
     return JsonResponse({
-        'books': [book.to_dict() for book in page_obj],
+        'books': books_data,
         'total': paginator.count,
         'available': total_available,
         'pages': paginator.num_pages,
@@ -284,7 +307,7 @@ def api_books(request):
             'search': bool(search),
             'category': bool(category_id),
             'status': bool(status),
-            'formats': bool(formats),
+            'format': bool(format_type),  # Changé de 'formats' à 'format'
             'languages': bool(languages),
             'year_range': bool(min_year or max_year),
         }
@@ -292,6 +315,7 @@ def api_books(request):
 
 
 @csrf_exempt
+@ajax_admin_required
 @require_http_methods(["POST"])
 def api_create_book(request):
     form = BookForm(request.POST, request.FILES)
@@ -310,6 +334,7 @@ def api_get_book(request, book_id):
 
 
 @csrf_exempt
+@ajax_admin_required
 @require_http_methods(["PUT"])
 def api_update_book(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
@@ -323,6 +348,7 @@ def api_update_book(request, book_id):
 
 
 @csrf_exempt
+@ajax_admin_required
 @require_http_methods(["DELETE"])
 def api_delete_book(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
@@ -382,6 +408,11 @@ def api_publishers(request):
 @require_http_methods(["GET", "POST"])
 def add_author(request):
     if request.method == "POST":
+        # Vérification des droits admin pour l'ajout
+        if not hasattr(request.user, 'profile') or not request.user.profile.is_admin:
+            messages.error(request, 'Accès refusé. Seuls les administrateurs peuvent ajouter des auteurs.')
+            return redirect('add_author')
+            
         form = AuthorForm(request.POST)
         if form.is_valid():
             author = form.save()
@@ -417,7 +448,7 @@ def add_author(request):
     return render(request, 'biblio/forms/author_form.html', context)
 
 
-@login_required
+@admin_required
 @require_http_methods(["GET", "POST"])
 def edit_author(request, author_id):
     author = get_object_or_404(Author, pk=author_id)
@@ -454,7 +485,7 @@ def edit_author(request, author_id):
     return render(request, 'biblio/forms/author_form.html', context)
 
 
-@login_required
+@admin_required
 @require_http_methods(["POST"])
 def delete_author(request, author_id):
     author = get_object_or_404(Author, pk=author_id)
@@ -475,6 +506,11 @@ def delete_author(request, author_id):
 @require_http_methods(["GET", "POST"])
 def add_category(request):
     if request.method == "POST":
+        # Vérification des droits admin pour l'ajout
+        if not hasattr(request.user, 'profile') or not request.user.profile.is_admin:
+            messages.error(request, 'Accès refusé. Seuls les administrateurs peuvent ajouter des catégories.')
+            return redirect('add_category')
+            
         form = CategoryForm(request.POST)
         if form.is_valid():
             category = form.save()
@@ -506,7 +542,7 @@ def add_category(request):
     return render(request, 'biblio/forms/category_form.html', context)
 
 
-@login_required
+@admin_required
 @require_http_methods(["GET", "POST"])
 def edit_category(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
@@ -543,7 +579,7 @@ def edit_category(request, category_id):
     return render(request, 'biblio/forms/category_form.html', context)
 
 
-@login_required
+@admin_required
 @require_http_methods(["POST"])
 def delete_category(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
@@ -567,6 +603,11 @@ def delete_category(request, category_id):
 @require_http_methods(["GET", "POST"])
 def add_publisher(request):
     if request.method == "POST":
+        # Vérification des droits admin pour l'ajout
+        if not hasattr(request.user, 'profile') or not request.user.profile.is_admin:
+            messages.error(request, 'Accès refusé. Seuls les administrateurs peuvent ajouter des éditeurs.')
+            return redirect('add_publisher')
+            
         form = PublisherForm(request.POST)
         if form.is_valid():
             publisher = form.save()
@@ -598,7 +639,7 @@ def add_publisher(request):
     return render(request, 'biblio/forms/publisher_form.html', context)
 
 
-@login_required
+@admin_required
 @require_http_methods(["GET", "POST"])
 def edit_publisher(request, publisher_id):
     publisher = get_object_or_404(Publisher, pk=publisher_id)
@@ -635,7 +676,7 @@ def edit_publisher(request, publisher_id):
     return render(request, 'biblio/forms/publisher_form.html', context)
 
 
-@login_required
+@admin_required
 @require_http_methods(["POST"])
 def delete_publisher(request, publisher_id):
     publisher = get_object_or_404(Publisher, pk=publisher_id)
@@ -655,7 +696,7 @@ def delete_publisher(request, publisher_id):
 # ============================================
 # VUES LIVRES
 # ============================================
-@login_required
+@admin_required
 @require_http_methods(["GET", "POST"])
 def add_book(request):
     if request.method == "POST":
@@ -707,7 +748,7 @@ def add_book(request):
     return render(request, 'biblio/forms/book_form.html', context)
 
 
-@login_required
+@admin_required
 @require_http_methods(["GET", "POST"])
 def edit_book(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
@@ -765,7 +806,7 @@ def edit_book(request, book_id):
     return render(request, 'biblio/forms/book_form.html', context)
 
 
-@login_required
+@admin_required
 @require_http_methods(["POST"])
 def delete_book(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
@@ -881,6 +922,7 @@ def get_filtered_books(request):
     search = request.GET.get('search', '')
     category_id = request.GET.get('category', '')
     status = request.GET.get('status', '')
+    format_filter = request.GET.get('format', '')
     
     if search:
         books = books.filter(
@@ -895,7 +937,14 @@ def get_filtered_books(request):
     if status:
         books = books.filter(status=status)
     
+    # Appliquer le filtre de format
+    if format_filter == 'digital':
+        books = books.exclude(file='').exclude(file__isnull=True)
+    elif format_filter == 'physical':
+        books = books.filter(Q(file='') | Q(file__isnull=True))
+    
     return books
+
 
 
 # ============================================
@@ -910,6 +959,16 @@ def export_books_excel(request):
     
     # Récupérer les livres filtrés
     books = get_filtered_books(request)
+    
+    # Par défaut, exporter uniquement les livres physiques
+    # Sauf si un filtre de format est déjà appliqué ou si include_pdf est présent
+    format_filter = request.GET.get('format', '')
+    include_pdf = request.GET.get('include_pdf', '')
+    
+    if not format_filter and not include_pdf:
+        # Exporter uniquement les livres physiques par défaut
+        books = books.filter(Q(file='') | Q(file__isnull=True))
+
     
     # Créer un classeur Excel
     wb = openpyxl.Workbook()
@@ -1161,6 +1220,16 @@ def export_books_word(request):
     
     # Récupérer les livres filtrés
     books = get_filtered_books(request)
+    
+    # Par défaut, exporter uniquement les livres physiques
+    # Sauf si un filtre de format est déjà appliqué ou si include_pdf est présent
+    format_filter = request.GET.get('format', '')
+    include_pdf = request.GET.get('include_pdf', '')
+    
+    if not format_filter and not include_pdf:
+        # Exporter uniquement les livres physiques par défaut
+        books = books.filter(Q(file='') | Q(file__isnull=True))
+
     
     # Créer un document Word
     doc = Document()

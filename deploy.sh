@@ -87,7 +87,7 @@ if [ "$DEPLOY_MODE" = "simple" ]; then
         echo ""
         echo "5. Installation des dépendances Python..."
         pip install --upgrade pip
-        pip install mysqlclient gunicorn
+        pip install mysqlclient gunicorn python-decouple whitenoise django-cors-headers django-cleanup
         if [ -f "requirements.txt" ]; then
             pip install -r requirements.txt
             echo "✓ Dépendances Python installées"
@@ -189,7 +189,7 @@ source $VENV_DIR/bin/activate
 echo ""
 echo "5. Installation des dépendances Python..."
 pip install --upgrade pip
-pip install mysqlclient gunicorn
+pip install mysqlclient gunicorn python-decouple whitenoise django-cors-headers django-cleanup
 if [ -f "requirements.txt" ]; then
     pip install -r requirements.txt
     echo "✓ Dépendances Python installées"

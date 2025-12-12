@@ -32,10 +32,11 @@
         };
     </script>
 
-    <!-- Fonts and Icons - Local Files -->
-      <link rel="stylesheet" href="{% static 'css/style.js' %}" />
+    <!-- Fonts and Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.js' %}" />
     <link rel="stylesheet" href="{% static 'css/roboto.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/fontawesome.min.css' %}" />
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -129,6 +130,13 @@
     </script>
 
     {% block extra_js %}{% endblock %}
+    
+    <script>
+        // Init Lucide Icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
 </body>
 
 </html>

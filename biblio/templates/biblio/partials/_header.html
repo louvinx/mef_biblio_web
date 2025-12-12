@@ -13,8 +13,8 @@
 
             <div class="items-center hidden space-x-4 md:flex">
                 <div class="flex items-center space-x-3">
-                    <span class="text-sm p-2 text-primary bg-gray-200 rounded ">
-                        <i class="w-5 fas fa-user"></i>{{ user.username }}</span>
+                    <span class="text-sm p-2 text-primary bg-gray-200 rounded flex items-center gap-2">
+                        <i class="w-4 h-4" data-lucide="user"></i>{{ user.username }}</span>
                     <form method="post" action="{% url 'logout' %}" class="d-inline">
                         {% csrf_token %}
                         <button type="submit"
@@ -26,7 +26,7 @@
             </div>
 
             <button id="mobile-menu-button" class="text-gray-600 md:hidden">
-                <i class="text-xl fas fa-bars"></i>
+                <i class="w-6 h-6" data-lucide="menu"></i>
             </button>
         </div>
     </div>

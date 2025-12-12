@@ -1,0 +1,173 @@
+{% extends 'biblio/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="p-6">
+    <!-- En-tête -->
+    <div class="p-4 mb-6 border border-gray-300 rounded-md">
+        <div class="flex flex-col items-start justify-between md:flex-row md:items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-primary">Détails de l'utilisateur</h2>
+                <p class="text-gray-600">Informations complètes sur {{ user_obj.username }}</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a href="{% url 'users_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 flex items-center">
+                    <i class="w-4 h-4 mr-2" data-lucide="arrow-left"></i>Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Colonne de gauche - Informations du profil -->
+        <div class="md:col-span-1">
+            <div class="bg-white border border-gray-200 rounded-md p-6">
+                <div class="text-center">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="Avatar" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-primary">
+                    {% else %}
+                        <div class="w-32 h-32 rounded-full mx-auto mb-4 bg-primary flex items-center justify-center text-white text-4xl font-bold">
+                            {{ user_obj.username|first|upper }}
+                        </div>
+                    {% endif %}
+                    
+                    <h3 class="text-xl font-bold text-gray-900">{{ profile.full_name }}</h3>
+                    <p class="text-gray-600">@{{ user_obj.username }}</p>
+                    
+                    <div class="mt-4">
+                        <span class="inline-flex items-center px-3 py-1 text-sm rounded-md {% if profile.is_admin %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                            <i class="w-4 h-4 mr-1" data-lucide="{% if profile.is_admin %}crown{% else %}user{% endif %}"></i>
+                            {{ profile.get_role_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 space-y-3 text-sm">
+                    <div class="flex items-center text-gray-600">
+                        <i class="w-5 h-5 mr-2" data-lucide="mail"></i>
+                        <span>{{ user_obj.email }}</span>
+                    </div>
+                    
+                    {% if profile.phone %}
+                    <div class="flex items-center text-gray-600">
+                        <i class="w-5 h-5 mr-2" data-lucide="phone"></i>
+                        <span>{{ profile.phone }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.address %}
+                    <div class="flex items-start text-gray-600">
+                        <i class="w-5 h-5 mr-2 mt-0.5" data-lucide="map-pin"></i>
+                        <span>{{ profile.address }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex items-center text-gray-600">
+                        <i class="w-5 h-5 mr-2" data-lucide="calendar"></i>
+                        <span>Membre depuis {{ user_obj.date_joined|date:"d/m/Y" }}</span>
+                    </div>
+                    
+                    <div class="flex items-center text-gray-600">
+                        <i class="w-5 h-5 mr-2" data-lucide="clock"></i>
+                        <span>Dernière connexion: {{ user_obj.last_login|date:"d/m/Y H:i"|default:"Jamais" }}</span>
+                    </div>
+                </div>
+                
+                {% if user_obj != user %}
+                <div class="mt-6 space-y-2">
+                    <a href="{% url 'change_user_role' user_obj.id %}" class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-dark">
+                        <i class="w-4 h-4 mr-2" data-lucide="user-cog"></i>Changer le rôle
+                    </a>
+                    <form method="POST" action="{% url 'delete_user' user_obj.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
+                        {% csrf_token %}
+                        <button type="submit" class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+                            <i class="w-4 h-4 mr-2" data-lucide="trash-2"></i>Supprimer l'utilisateur
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Colonne de droite - Informations détaillées -->
+        <div class="md:col-span-2">
+            <div class="bg-white border border-gray-200 rounded-md p-6">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Informations détaillées</h3>
+                
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Prénom</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ user_obj.first_name|default:"Non renseigné" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Nom</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ user_obj.last_name|default:"Non renseigné" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Nom d'utilisateur</p>
+                        <p class="mt-1 text-sm text-gray-900">{{ user_obj.username }}</p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Email</p>
+                        <p class="mt-1 text-sm text-gray-900">{{ user_obj.email }}</p>
+                    </div>
+                    
+                    {% if profile.phone %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Téléphone</p>
+                        <p class="mt-1 text-sm text-gray-900">{{ profile.phone }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.address %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Adresse</p>
+                        <p class="mt-1 text-sm text-gray-900">{{ profile.address }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.bio %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Biographie</p>
+                        <p class="mt-1 text-sm text-gray-900">{{ profile.bio }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Date d'inscription</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ user_obj.date_joined|date:"d/m/Y à H:i" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Dernière mise à jour</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ profile.updated_at|date:"d/m/Y à H:i" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Statut du compte</p>
+                        <p class="mt-1">
+                            {% if user_obj.is_active %}
+                                <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-md">Actif</span>
+                            {% else %}
+                                <span class="px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded-md">Inactif</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block extra_js %}
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
+{% endblock %}
+{% endblock %}

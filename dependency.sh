@@ -56,12 +56,6 @@ else
     info "✓ MariaDB already installed"
 fi
 
-info "Installing and configuring firewall..."
-apt install -y ufw
-ufw --force enable
-ufw allow ssh
-ufw allow 8000/tcp  # Gunicorn port
-info "✓ Firewall configured"
 
 info "Verifying installations..."
 echo "Python3: $(python3 --version)"

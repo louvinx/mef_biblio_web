@@ -9,7 +9,7 @@
             <ul class="space-y-2">
                 {% for pub in publishers %}
                 <li
-                    class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
+                    class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50">
                     <div class="flex-1">
                         <span class="text-sm font-medium ">{{ pub.publisher_name }}</span>
                         {% if pub.email %}
@@ -20,12 +20,13 @@
                         {% endif %}
                         <p class="text-xs text-gray-400">{{ pub.book_set.count }} livre(s)</p>
                     </div>
+                    {% if user.profile.is_admin %}
                     <div class="flex gap-2 ml-4">
                         <a href="{% url 'edit_publisher' pub.publisher_id %}"
                             class="px-2 py-1 text-xs text-primary transition-colors bg-blue-50 rounded hover:bg-blue-100">
                             Modifier
                         </a>
-                                {% if pub.book_count < 1 %}
+                     
                         <form method="post" action="{% url 'delete_publisher' pub.publisher_id %}" class="inline">
                             {% csrf_token %}
                             <button type="submit"
@@ -34,8 +35,9 @@
                                 Supprimer
                             </button>
                         </form>
-                           {% endif %}
+                        
                     </div>
+                    {% endif %}
                 </li>
                 {% empty %}
                 <li class="p-3 text-sm text-center text-gray-800 bg-white border border-gray-200 rounded-lg">
@@ -44,15 +46,18 @@
                 {% endfor %}
             </ul>
         </div>
+        {% if user.profile.is_admin %}
         <a href="{% url 'add_publisher' %}"
             class="inline-block w-full px-4 py-2 mt-4 text-sm font-medium text-center text-white transition-colors bg-gray-800 rounded hover:bg-gray-700">
             + Nouvel Éditeur
         </a>
+        {% endif %}
     </div>
 
     <!-- Formulaire Éditeur -->
+    {% if user.profile.is_admin %}
     <div class="flex-1 p-6">
-        <div class="max-w-2xl p-6 mx-auto bg-white rounded-lg shadow-sm">
+        <div class="max-w-2xl p-6 mx-auto bg-white rounded-md shadow-sm">
             <h2 class="mb-8 text-2xl font-bold text-center ">
                 {% if publisher %}Modifier l'éditeur{% else %}Ajouter un éditeur{% endif %}
             </h2>
@@ -104,6 +109,13 @@
             </form>
         </div>
     </div>
+    {% else %}
+    <div class="flex-1 p-6 flex flex-col items-center justify-center text-gray-500 bg-gray-50/50">
+        <i class="w-12 h-12 mb-4 text-gray-300" data-lucide="lock"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Lecture seule</h3>
+        <p>Vous devez être administrateur pour ajouter ou modifier des éditeurs.</p>
+    </div>
+    {% endif %}
 </div>
 
 <script>
@@ -152,5 +164,11 @@
             });
         }
     });
+</script>
+</script>
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 </script>
 {% endblock %}

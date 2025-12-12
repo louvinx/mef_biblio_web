@@ -1,0 +1,93 @@
+{% extends 'biblio/base.html' %}
+
+{% block content %}
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Gestion des prêts</h2>
+            <p class="text-gray-600">Liste de tous les emprunts</p>
+        </div>
+        <a href="{% url 'create_loan' %}" class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark flex items-center">
+            <i class="w-4 h-4 mr-2" data-lucide="plus-circle"></i>
+            Nouveau prêt
+        </a>
+    </div>
+
+    <div class="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Livre</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Emprunteur</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date de prêt</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retour prévu</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for loan in loans %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <i class="w-5 h-5 text-gray-400 mr-2" data-lucide="book"></i>
+                                <span class="font-medium text-gray-900">{{ loan.book.title }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <span class="text-gray-900">{{ loan.user.username }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ loan.loan_date|date:"d/m/Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ loan.due_date|date:"d/m/Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if loan.status == 'ACTIVE' %}bg-green-100 text-green-800
+                                {% elif loan.status == 'OVERDUE' or loan.is_overdue %}bg-red-100 text-red-800
+                                {% elif loan.status == 'RETURNED' %}bg-gray-100 text-gray-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {% if loan.is_overdue and loan.status == 'ACTIVE' %}
+                                    En retard
+                                {% else %}
+                                    {{ loan.get_status_display }}
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            {% if loan.status == 'ACTIVE' or loan.status == 'OVERDUE' %}
+                            <form action="{% url 'return_loan' loan.id %}" method="POST" class="inline-block" onsubmit="return confirm('Confirmer le retour de ce livre ?');">
+                                {% csrf_token %}
+                                <button type="submit" class="text-indigo-600 hover:text-indigo-900 flex items-center justify-end w-full">
+                                    <i class="w-4 h-4 mr-1" data-lucide="check-square"></i> Retourner
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                            Aucun prêt enregistré.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
+{% endblock %}
+{% endblock %}

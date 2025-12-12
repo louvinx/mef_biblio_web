@@ -3,8 +3,17 @@ from django.core.validators import FileExtensionValidator
 from django.urls import reverse
 import os
 
+# Import du modèle UserProfile
+from .models_user import UserProfile
+from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
+
 def book_upload_path(instance, filename):
     return f'books/{instance.book_id}/{filename}'
+
+def book_cover_path(instance, filename):
+    return f'books/{instance.book_id}/covers/{filename}'
 
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
@@ -96,6 +105,7 @@ class Book(models.Model):
     total_copies = models.IntegerField(default=1)
     available_copies = models.IntegerField(default=1)
     location = models.CharField(max_length=500, blank=True, null=True)
+    cover_image = models.ImageField(upload_to=book_cover_path, blank=True, null=True)
     file = models.FileField(
         upload_to=book_upload_path,
         blank=True,
@@ -153,6 +163,7 @@ class Book(models.Model):
             'total_copies': self.total_copies,
             'available_copies': self.available_copies,
             'location': self.location,
+            'cover_image': self.cover_image.url if self.cover_image else None,
             'file_url': self.file.url if self.file else None,
             'status': self.status,
             'is_digital': self.is_digital,
@@ -182,3 +193,55 @@ class BookAuthor(models.Model):
 
     class Meta:
         unique_together = ('book', 'author')
+
+class Loan(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'En attente'),
+        ('ACTIVE', 'En cours'),
+        ('RETURNED', 'Retourné'),
+        ('OVERDUE', 'En retard'),
+        ('REJECTED', 'Rejeté'),
+    ]
+
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='loans')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='loans')
+    request_date = models.DateTimeField(auto_now_add=True)
+    loan_date = models.DateField(null=True, blank=True)
+    due_date = models.DateField(null=True, blank=True)
+    return_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    notes = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.loan_date and not self.due_date:
+            # Par défaut, prêt de 14 jours
+            self.due_date = self.loan_date + timedelta(days=14)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.book.title} ({self.get_status_display()})"
+    
+    @property
+    def is_overdue(self):
+        if self.status == 'ACTIVE' and self.due_date and self.due_date < timezone.now().date():
+            return True
+        return False
+
+
+class Favorite(models.Model):
+    """
+    Modèle pour gérer les livres favoris des utilisateurs.
+    Permet aux utilisateurs de marquer des livres comme favoris pour un accès rapide.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='favorited_by')
+    added_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('user', 'book')  # Un livre ne peut être favori qu'une fois par utilisateur
+        verbose_name = "Favori"
+        verbose_name_plural = "Favoris"
+        ordering = ['-added_at']  # Les plus récents en premier
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.book.title}"

@@ -1,50 +1,148 @@
-<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transition-transform duration-300 transform -translate-x-full md:translate-x-0 flex flex-col h-screen overflow-y-auto border-r border-gray-200 p-4">
-    
+<aside id="sidebar"
+    class="fixed inset-y-0 left-0 z-50 w-64 bg-primary text-white transition-transform duration-300 transform -translate-x-full md:translate-x-0 flex flex-col h-screen overflow-y-auto border-r border-gray-800 p-4 shadow-xl custom-scrollbar">
+
+    <!-- Profil Utilisateur -->
+    <div class="mb-8 p-4 bg-white/10 rounded-md backdrop-blur-sm border border-white/10">
+        <div class="flex items-center gap-3 mb-3">
+            {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="Avatar"
+                class="w-10 h-10 rounded-full object-cover border-2 border-white/50">
+            {% else %}
+            <div
+                class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary text-lg font-bold shadow-sm">
+                {{ user.username|first|upper }}
+            </div>
+            {% endif %}
+            <div class="overflow-hidden">
+                <h3 class="font-bold text-sm truncate text-white">{{ user.profile.full_name|default:user.username }}</h3>
+                <p class="text-xs text-blue-100 truncate">@{{ user.username }}</p>
+            </div>
+        </div>
+        <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs">
+                <span class="px-2 py-1 rounded-md bg-black/20 text-blue-50 flex items-center border border-white/5">
+                    <i class="w-3 h-3 mr-1"
+                        data-lucide="{% if user.profile.is_admin %}crown{% else %}user{% endif %}"></i>
+                    {{ user.profile.get_role_display }}
+                </span>
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'profile' %}"
+                    class="flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-white text-primary hover:bg-blue-50 text-xs font-bold transition-all duration-200 shadow-sm hover:shadow-md w-full">
+                    <i class="w-4 h-4" data-lucide="user-circle"></i>
+                    <span>Voir profil</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Contenu principal qui prend tout l'espace disponible -->
     <div class="flex-1">
         <!-- Navigation principale -->
         <div class="mb-6">
-            <h2 class="mb-3 text-sm font-semibold tracking-wide uppercase text-white opacity-90">Navigation</h2>
+            <h2 class="mb-3 text-xs font-semibold tracking-wider uppercase text-gray-500">Menu Principal</h2>
             <ul class="space-y-1">
                 <li>
+                <li>
+                <li>
                     <a href="{% url 'index' %}"
-                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'index' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
-                        <i class="w-5 mr-3 fas fa-book"></i>
-                        <span class="text-sm font-medium">Bibliothèque</span>
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'index' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'index' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="library"></i>
+                        <span class="text-sm">Bibliothèque</span>
+                    </a>
+                </li>
+                <li>
+                <li>
+                <li>
+                    <a href="{% url 'my_loans' %}"
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'my_loans' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'my_loans' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="book-open"></i>
+                        <span class="text-sm">Mes emprunts</span>
+                    </a>
+                </li>
+                <li>
+    <a href="{% url 'favorites_list' %}"
+        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'favorites_list' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'favorites_list' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+            data-lucide="heart"></i>
+        <span class="text-sm">Mes favoris</span>
+        {% if user.favorites.count > 0 %}
+        <span id="sidebar-favorites-count" class="ml-auto px-2 py-0.5 text-xs rounded-full bg-white/20 text-white">{{ user.favorites.count }}</span>
+        {% else %}
+        <span id="sidebar-favorites-count" class="ml-auto px-2 py-0.5 text-xs rounded-full bg-white/20 text-white hidden">0</span>
+        {% endif %}
+    </a>
+</li>
+
+                </li>
+                <li>
+                <li>
+                <li>
+                    <a href="{% url 'create_loan' %}"
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'create_loan' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'create_loan' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="plus-square"></i>
+                        <span class="text-sm">Créer un emprunt</span>
+                    </a>
+                </li>
+                {% if user.profile.is_admin %}
+                <li>
+                    <a href="{% url 'loan_list' %}"
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'loan_list' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'loan_list' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="calendar-days"></i>
+                        <span class="text-sm">Gérer les prêts</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'add_book' %}"
-                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_book' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
-                        <i class="w-5 mr-3 fas fa-plus-circle"></i>
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'add_book' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'add_book' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="plus-circle"></i>
                         <span class="text-sm">Ajouter un livre</span>
                     </a>
                 </li>
                 <li>
+                    <a href="{% url 'users_list' %}"
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'users_list' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'users_list' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="users-round"></i>
+                        <span class="text-sm">Gérer utilisateurs</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li>
                     <a href="{% url 'add_author' %}"
-                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_author' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
-                        <i class="w-5 mr-3 fas fa-user-plus"></i>
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'add_author' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'add_author' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="users"></i>
                         <span class="text-sm">Gérer les auteurs</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'add_category' %}"
-                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_category' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
-                        <i class="w-5 mr-3 fas fa-tags"></i>
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'add_category' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'add_category' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="tags"></i>
                         <span class="text-sm">Gérer les catégories</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'add_publisher' %}"
-                        class="flex items-center p-3 text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'add_publisher' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
-                        <i class="w-5 mr-3 fas fa-building"></i>
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'add_publisher' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'add_publisher' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="building-2"></i>
                         <span class="text-sm">Gérer les éditeurs</span>
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'book_list' %}"
-                        class="flex items-center p-3 rounded text-white transition-all duration-200 hover:bg-white hover:bg-opacity-10 nav-link {% if request.resolver_match.url_name == 'book_list' %}active bg-white bg-opacity-20{% else %}opacity-80{% endif %}">
-                        <i class="w-5 mr-3 fas fa-list"></i>
+                        class="flex items-center p-3 rounded-md text-blue-100 transition-all duration-200 hover:bg-white/10 hover:text-white nav-link group {% if request.resolver_match.url_name == 'book_list' %}active bg-white text-primary shadow-lg font-bold{% endif %}">
+                        <i class="w-5 h-5 mr-3 transition-colors {% if request.resolver_match.url_name == 'book_list' %}text-primary{% else %}text-blue-200 group-hover:text-white{% endif %}"
+                            data-lucide="list"></i>
                         <span class="text-sm">Liste des livres</span>
                     </a>
                 </li>
@@ -52,8 +150,9 @@
         </div>
 
         <!-- Statistiques rapides -->
-        <div class="mt-16">
-            <h2 class="mb-4 text-sm font-semibold tracking-wide uppercase text-white opacity-90">Aperçu Rapide</h2>
+        <!-- Statistiques rapides -->
+        <div class="mt-8 pt-6 border-t border-gray-800">
+            <h2 class="mb-4 text-xs font-semibold tracking-wider uppercase text-gray-500">Aperçu Rapide</h2>
 
             <div class="grid grid-cols-1 gap-3">
                 <!-- Livres -->
@@ -69,26 +168,35 @@
                 </div>
 
                 <!-- Auteurs -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 py-2">
+                    <div class="w-8 h-8 rounded bg-white/20 flex items-center justify-center text-white">
+                        <i class="w-4 h-4" data-lucide="users"></i>
+                    </div>
                     <div>
                         <div class="text-sm font-bold text-white">{{ total_authors }}</div>
-                        <div class="text-xs text-white opacity-80">Auteurs</div>
+                        <div class="text-xs text-blue-200">Auteurs</div>
                     </div>
                 </div>
 
                 <!-- Catégories -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 py-2">
+                    <div class="w-8 h-8 rounded bg-white/20 flex items-center justify-center text-white">
+                        <i class="w-4 h-4" data-lucide="tags"></i>
+                    </div>
                     <div>
                         <div class="text-sm font-bold text-white">{{ total_categories }}</div>
-                        <div class="text-xs text-white opacity-80">Catégories</div>
+                        <div class="text-xs text-blue-200">Catégories</div>
                     </div>
                 </div>
 
                 <!-- Éditeurs -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 py-2">
+                    <div class="w-8 h-8 rounded bg-white/20 flex items-center justify-center text-white">
+                        <i class="w-4 h-4" data-lucide="building-2"></i>
+                    </div>
                     <div>
                         <div class="text-sm font-bold text-white">{{ total_publishers }}</div>
-                        <div class="text-xs text-white opacity-80">Éditeurs</div>
+                        <div class="text-xs text-blue-200">Éditeurs</div>
                     </div>
                 </div>
             </div>
@@ -104,62 +212,108 @@
 </aside>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Gestion des liens actifs au clic
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    // Fonction pour normaliser les URLs
-    function normalizeUrl(url) {
-        // Supprimer le slash final s'il existe
-        return url.replace(/\/$/, '');
-    }
-    
-    // Fonction pour mettre à jour les liens actifs
-    function updateActiveLinks() {
-        const currentPath = normalizeUrl(window.location.pathname);
-        
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gestion des liens actifs au clic
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        // Fonction pour normaliser les URLs
+        function normalizeUrl(url) {
+            // Supprimer le slash final s'il existe
+            return url.replace(/\/$/, '');
+        }
+
+        // Fonction pour mettre à jour les liens actifs
+        function updateActiveLinks() {
+            const currentPath = normalizeUrl(window.location.pathname);
+
+            navLinks.forEach(link => {
+                const linkHref = normalizeUrl(link.getAttribute('href'));
+
+                // Vérifier si le lien correspond au chemin actuel
+                if (linkHref === currentPath ||
+                    (currentPath === '' && linkHref === '/') ||
+                    (currentPath === normalizeUrl("{% url 'index' %}") && linkHref === normalizeUrl("{% url 'index' %}"))) {
+
+                    // Retirer les classes actives de tous les liens
+                    navLinks.forEach(l => {
+                        l.classList.remove('active', 'bg-white', 'text-primary', 'shadow-lg', 'font-bold');
+                        l.classList.add('text-blue-100');
+                        // Reset icon color
+                        const icon = l.querySelector('svg') || l.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('text-primary');
+                            icon.classList.add('text-blue-200');
+                        }
+                    });
+
+                    // Ajouter les classes actives au lien correspondant
+                    link.classList.add('active', 'bg-white', 'text-primary', 'shadow-lg', 'font-bold');
+                    link.classList.remove('text-blue-100');
+                    // Set icon color
+                    const icon = link.querySelector('svg') || link.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('text-blue-200');
+                        icon.classList.add('text-primary');
+                    }
+
+                    // Stocker dans localStorage
+                    localStorage.setItem('activeNavLink', link.getAttribute('href'));
+                }
+            });
+        }
+
+        // Événement de clic sur les liens
         navLinks.forEach(link => {
-            const linkHref = normalizeUrl(link.getAttribute('href'));
-            
-            // Vérifier si le lien correspond au chemin actuel
-            if (linkHref === currentPath || 
-                (currentPath === '' && linkHref === '/') ||
-                (currentPath === normalizeUrl("{% url 'index' %}") && linkHref === normalizeUrl("{% url 'index' %}"))) {
-                
-                // Retirer les classes actives de tous les liens
-                navLinks.forEach(l => {
-                    l.classList.remove('active', 'bg-white', 'bg-opacity-20');
-                    l.classList.add('opacity-80');
-                });
-                
-                // Ajouter les classes actives au lien correspondant
-                link.classList.add('active', 'bg-white', 'bg-opacity-20');
-                link.classList.remove('opacity-80');
-                
-                // Stocker dans localStorage
-                localStorage.setItem('activeNavLink', link.getAttribute('href'));
-            }
+            link.addEventListener('click', function (e) {
+                // Pour les liens normaux, laisser le comportement par défaut
+                // Le rechargement de la page déclenchera updateActiveLinks()
+
+                // Stocker le lien cliqué pour une restauration immédiate si nécessaire
+                localStorage.setItem('activeNavLink', this.getAttribute('href'));
+            });
         });
-    }
-    
-    // Événement de clic sur les liens
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            // Pour les liens normaux, laisser le comportement par défaut
-            // Le rechargement de la page déclenchera updateActiveLinks()
-            
-            // Stocker le lien cliqué pour une restauration immédiate si nécessaire
-            localStorage.setItem('activeNavLink', this.getAttribute('href'));
-        });
+
+        // Mettre à jour les liens actifs au chargement
+        updateActiveLinks();
+
+        // Écouter les changements d'URL (pour les SPA ou navigation sans rechargement)
+        window.addEventListener('popstate', updateActiveLinks);
+
+        // Vérifier également après un délai court au cas où
+        setTimeout(updateActiveLinks, 100);
     });
-    
-    // Mettre à jour les liens actifs au chargement
-    updateActiveLinks();
-    
-    // Écouter les changements d'URL (pour les SPA ou navigation sans rechargement)
-    window.addEventListener('popstate', updateActiveLinks);
-    
-    // Vérifier également après un délai court au cas où
-    setTimeout(updateActiveLinks, 100);
-});
 </script>
+
+<style>
+    /* Scrollbar personnalisée pour le sidebar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(31, 41, 55, 0.3);
+        /* gray-800 avec transparence */
+        border-radius: 10px;
+        margin: 8px 0;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(107, 114, 128, 0.5);
+        /* Gris calme */
+        border-radius: 10px;
+        border: 2px solid rgba(31, 41, 55, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(107, 114, 128, 0.7);
+        /* Gris un peu plus visible au hover */
+        border-color: rgba(31, 41, 55, 0.5);
+    }
+
+    /* Pour Firefox */
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(107, 114, 128, 0.5) rgba(31, 41, 55, 0.3);
+    }
+</style>

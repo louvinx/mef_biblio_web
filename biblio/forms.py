@@ -49,7 +49,7 @@ class BookForm(forms.ModelForm):
         fields = [
             'title', 'isbn', 'publisher', 'publication_year', 
             'pages', 'language', 'summary', 'total_copies',
-            'available_copies', 'location', 'status', 'file', 'authors', 'categories'
+            'available_copies', 'location', 'cover_image', 'status', 'file', 'authors', 'categories'
         ]
         widgets = {
             'title': forms.TextInput(attrs={
@@ -97,6 +97,10 @@ class BookForm(forms.ModelForm):
                 'minlength': '2',
                 'maxlength': '500'
             }),
+            'cover_image': forms.FileInput(attrs={
+                'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent',
+                'accept': 'image/*'
+            }),
             'status': forms.Select(attrs={
                 'class': 'w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/80 focus:border-transparent'
             }),
@@ -131,6 +135,7 @@ class BookForm(forms.ModelForm):
         self.fields['file'].required = False
         self.fields['total_copies'].required = False
         self.fields['available_copies'].required = False
+        self.fields['cover_image'].required = False
 
     def clean_publication_year(self):
         publication_year = self.cleaned_data.get('publication_year')
@@ -270,6 +275,15 @@ class AuthorForm(forms.ModelForm):
             if len(name) < 2:
                 raise forms.ValidationError(
                     _('Le nom doit contenir au moins 2 caractères')
+                )
+            
+            # Vérifie si l'auteur existe déjà (ignore la casse)
+            exists = Author.objects.filter(name__iexact=name)
+            if self.instance.pk:  # Si c'est une mise à jour
+                exists = exists.exclude(pk=self.instance.pk)
+            if exists.exists():
+                raise forms.ValidationError(
+                    _('Un auteur avec ce nom existe déjà')
                 )
         return name
 
@@ -411,8 +425,4 @@ class PublisherForm(forms.ModelForm):
         phone = cleaned_data.get('phone')
         email = cleaned_data.get('email')
         
-        if not phone and not email:
-            raise forms.ValidationError(
-                _('Vous devez fournir au moins un moyen de contact (téléphone ou email)')
-            )
         return cleaned_data

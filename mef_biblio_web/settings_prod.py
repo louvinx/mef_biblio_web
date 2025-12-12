@@ -96,13 +96,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# IMPORTANT: Pour Gunicorn seul, désactiver la compression WhiteNoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# CORS
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:$PORT",
-    "http://127.0.0.1:$PORT",
-    "http://$SERVER_IP:$PORT",
-    "http://biblio.mef.local:$PORT",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://192.168.0.115:8000",
+    "http://biblio.mef.local:8000",
 ]
+
+
+
